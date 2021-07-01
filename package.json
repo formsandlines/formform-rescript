@@ -1,0 +1,53 @@
+{
+    "name": "formform",
+    "version": "0.15.0",
+    "description": "JS-library to calculate, visualize and simulate 4-valued FORMs of the FORM calculus introduced by Ralf Peyn in uFORM iFORM",
+    "keywords": [
+        "uFORM iFORM",
+        "FORM logic",
+        "undetermined form",
+        "eigenFORM",
+        "WELTFORM",
+        "uFORM",
+        "FORMWELT",
+        "laws of form",
+        "logic"
+    ],
+    "homepage": "https://formform.dev",
+    "author": {
+        "name": "Peter Hofmann",
+        "email": "peter.hofmann@formsandlines.eu",
+        "url": "https://formsandlines.eu"
+    },
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/formsandlines/formform"
+    },
+    "browserslist": [
+        "defaults",
+        "not IE 11",
+        "not IE_Mob 11"
+    ],
+    "main": "dist/formform.js",
+    "unpkg": "dist/formform.min.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "dev": "webpack --config webpack.dev.js",
+        "build": "webpack --config webpack.prod.js",
+        "lint": "eslint './src/**'",
+        "re:build": "rescript",
+        "re:start": "rescript build -w"
+    },
+    "dependencies": {
+        "big-integer": "^1.6.48",
+        "formsandlines-utils": "^0.1.1"
+    },
+    "devDependencies": {
+        "eslint": "^7.29.0",
+        "eslint-plugin-compat": "^3.9.0",
+        "rescript": "^9.1.4",
+        "webpack": "^5.39.1",
+        "webpack-cli": "^4.7.2"
+    }
+}
