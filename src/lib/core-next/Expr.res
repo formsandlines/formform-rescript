@@ -43,10 +43,9 @@ module FORM = {
 
     | FVar(string): t<fsym>
     // [SeqRE]: Self-equivalent ReEntry -> expression of a self-equivalent ReEntry [func] structure
-    | SeqRE(REsign.t, list<t<form>>): t<fsym>
+    | SeqRE(UCalc.REsign.t, list<t<form>>): t<fsym>
     // [FUncl]: Unclear FORM -> expression of a ?FORM that is marked unclear
     | FUncl(string, 'x): t<fsym>
-
 
   /**
   * Generates notation for [FORM]
@@ -94,7 +93,7 @@ module FORM = {
             }
           showForms(forms)
         }
-        `{${reSign->REsign.show} ${formStr}}`
+        `{${reSign->UCalc.REsign.show} ${formStr}}`
       }
     | FUncl(str, _) => `/${str}/`
     }
@@ -149,13 +148,11 @@ module FORM = {
     | (Mark(fa), Mark(fb)) => equiv(fa, fb)
     | (Mark(fa), b) => equiv(fa, b)
     | (Rel(fa, fb), Rel(fa', fb')) =>
-      if equiv(fa, fa') {
-        equiv(fb, fb')
-      } else if equiv(fa, fb') {
-        equiv(fb, fa')
-      } else {
-        false
-      }
+        switch (fa, fb, fa', fb') {
+        | (_, fb, _, fb') if equiv(fa, fa') => equiv(fb, fb')
+        | (_, fb, fa', _) if equiv(fa, fb') => equiv(fb, fa')
+        | _ => false
+        }
 
     // these are most probably not exhaustive:
     | (RE(fa), RE(fb)) => equiv(fa, fb)

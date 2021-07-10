@@ -12,7 +12,7 @@ let form = FORM.Mark( Rel( FCtx(FCon(U)), FCtx(FUncl("Welt",1)) ) )
 
 Js.log( form->FORM.show )
 
-let seqRe = FORM.SeqRE(REsign({re_n: 2, pre_n: 1, nStep: false}), list{Mark(Mark(Empty)), form})
+let seqRe = FORM.SeqRE({re_n: 2, pre_n: 1, nStep: false, interpr: RecInstr}, list{Mark(Mark(Empty)), form})
 
 Js.log( (FORM.Mark(Rel( FCtx(seqRe), Mark(Empty) )))->FORM.show )
 
@@ -25,13 +25,13 @@ let fdna = FORM.FDna({
 Js.log( fdna->FORM.show )
 
 let rec uFORM = FORM.Mark( Mark(uFORM) )
-let rec iFORM = FORM.Mark( uFORM )
+let iFORM = FORM.Mark( uFORM )
 
 Js.log( uFORM ) // <- marked as Circular
 Js.log( iFORM ) // <- marked as Circular
 // Js.log( uFORM->FORM.show ) // <- Caution: Stack overflow!
 // Js.log( iFORM->FORM.show ) // <- Caution: Stack overflow!
-Js.log( FORM.equiv(uFORM, uFORM) )
+// Js.log( FORM.equiv(uFORM, uFORM) )
 
 // Js.log( FORM.equiv( Mark(Mark(Empty)), FCtx(FCon(M)) ) )
 
@@ -39,3 +39,65 @@ let form' = FORM.Rel( Mark(Mark(Empty)), Rel( Mark(Mark(Empty)), Mark(Mark(Empty
 
 Js.log( FORM.show(form') )
 Js.log( FORM.eval(form') )
+
+Js.log( Nested.calcL(#NestToL(list{M,N,N}: list<Const.t>)) )
+
+// ((m).).
+
+
+let vtable: Code.VTable.t = Js.Dict.fromArray([("a",Const.U),("b",Const.I)])
+
+Js.log3(vtable, vtable->Js.Dict.get("a"), vtable->Js.Dict.set("c",Const.M)) // .set mutates the Dict!
+
+
+let val_n = 3
+Js.log2( Const.tFromJs(val_n)->Belt.Option.map( c => c->Const.show ),
+         Const.tFromJs_NMUI(val_n)->Belt.Option.map( c => c->Const.show ) )
+
+let val_c = Const.I
+Js.log2( Const.tToJs(val_c),
+         Const.tToJs_NMUI(val_c) )
+
+
+{
+  open Const
+  let nestedL = #NestToL(list{N,N,U,N,N,U})
+  Js.log(nestedL->Nested.show)
+
+  let result = Nested.calcL(nestedL)
+  Js.log(result->show)
+
+  // let nestedL' = Nested.reduceByCrossingL(nestedL)
+  // Js.log2(nestedL'->Nested.show, nestedL')
+  // let nestedL'' = Nested.reduceByCallingL(nestedL)
+  // Js.log2(nestedL''->Nested.show, nestedL'')
+  let nestedL''' = Nested.reduceL(nestedL)
+  Js.log2(nestedL'''->Nested.show, nestedL''')
+
+  Js.log("---")
+
+  let nestedR = #NestToR(nestedL->Nested.getList)
+  Js.log(nestedR->Nested.show)
+
+  let result = Nested.calcR(nestedR)
+  Js.log(result->show)
+
+  // let nestedR' = Nested.reduceByCrossingR(nestedR)
+  // Js.log2(nestedR'->Nested.show, nestedR')
+  // let nestedR'' = Nested.reduceByCallingR(nestedR)
+  // Js.log2(nestedR''->Nested.show, nestedR'')
+  let nestedR''' = Nested.reduceR(nestedR)
+  Js.log2(nestedR'''->Nested.show, nestedR''')
+}
+
+
+{
+  open Const
+  let nestedL = #NestToL(list{I})
+  let rsafe = UCalc.calc({re_n: 2, pre_n: 0, nStep: true, interpr: RecIdent}, nestedL)
+  switch rsafe {
+  | Some(r) => Js.log(r->Const.show)
+  | None => ()
+  }
+
+}

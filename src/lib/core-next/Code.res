@@ -19,14 +19,14 @@ module Dna = {
   // ----------------------------------------------------
 
   /**
-  * Inverts/marks all [Const] values of [Dna]
-  */
+   * Inverts/marks all [Const] values of [Dna]
+   */
   let inv = (dna: t) => dna->Js.Array2.map(c => Const.inv(c))
 
   /**
-  * Relates all corresponding [Const] values between two [Dna]
-  * (if [Dna]s differ in length, only the indexical matching subpart of the longer one is related)
-  */
+   * Relates all corresponding [Const] values between two [Dna]
+   * (if [Dna]s differ in length, only the indexical matching subpart of the longer one is related)
+   */
   let rel = (dna_a: t, dna_b: t) => {
     let len_a = dna_a->Js.Array2.length
     let len_b = dna_b->Js.Array2.length
@@ -38,14 +38,10 @@ module Dna = {
 
 }
 
-module REsign = {
-  // ----------------------------------------------------
-  // [REsign]: ReEntry signature -> instruction on how to
-  //   recursively construct a ReEntry structure
-  // ----------------------------------------------------
-  type t = REsign({re_n: int, pre_n: int, nStep: bool})
+module VTable = {
 
-  let show = (REsign({re_n, pre_n, nStep}): t) => {
-    `${"."->Js.String2.repeat(re_n)}@${"."->Js.String2.repeat(pre_n)}${nStep ? "_" : ""}`
-  }
+  type t = Js.Dict.t<Const.t>
+
+  // Js.Dict.fromArray
 }
+
