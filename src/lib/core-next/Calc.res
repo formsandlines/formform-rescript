@@ -18,6 +18,12 @@ module Const = {
   | I => "i"
   | M => "m"
   }
+  let showAsKey = (x: t) => switch x {
+  | N => "N"
+  | U => "U"
+  | I => "I"
+  | M => "M"
+  }
 
   /**
    * Output index from [Const] in NMUI ordering (used by uFORM iFORM)
@@ -51,11 +57,19 @@ module Const = {
    */
   let tFromStr = (str: string): option<t> => {
     switch str {
-    | "N" => Some(N) | "U" => Some(U) | "I" => Some(I) | "M" => Some(M)
-    | "n" => Some(N) | "u" => Some(U) | "i" => Some(I) | "m" => Some(M)
-    | _   => None
+    | "N" | "n" | "." | "" => Some(N)
+    | "U" | "u" | "mn"     => Some(U)
+    | "I" | "i" | "(mn)"   => Some(I)
+    | "M" | "m" | "()"     => Some(M)
+    | _ => None
     }
   }
+
+  let enum = (): array<t> =>
+    Belt.Array.makeBy(4, (i) => tFromJs(i)->Belt.Option.getExn)
+
+  let enum_NMUI = (): array<t> =>
+    Belt.Array.makeBy(4, (i) => tFromJs_NMUI(i)->Belt.Option.getExn)
 
 
   // ----------------------------------------------------
@@ -118,8 +132,7 @@ module Nested = {
     }
 
   let getList = (nest: t): list<Const.t> => switch nest {
-    | #NestToL(clist) => clist
-    | #NestToR(clist) => clist
+    | #NestToL(clist) | #NestToR(clist) => clist
     }
   let fmapL = (#NestToL(l), fn: (list<Const.t> => list<Const.t>)) => {
     #NestToL(l->fn)
@@ -155,8 +168,7 @@ module Nested = {
     switch clist {
     | list{}  => clist
     | list{c} => switch c {
-      | M => clist
-      | N => clist
+      | M | N => clist
       | _ => switch someUI {
         | None     => clist
         | Some(c') => c' == c ? list{N} : list{M}

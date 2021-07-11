@@ -8,13 +8,13 @@ Js.log( result )
 Js.log( result->Const.show )
 
 
-let form = FORM.Mark( Rel( FCtx(FCon(U)), FCtx(FUncl("Welt",1)) ) )
+let form = FORM.Mark( Rel( Val(U), FUncl("Welt",1) ) )
 
 Js.log( form->FORM.show )
 
-let seqRe = FORM.SeqRE({re_n: 2, pre_n: 1, nStep: false, interpr: RecInstr}, list{Mark(Mark(Empty)), form})
+let seqRe = FORM.SeqRE({reEntryPar: Odd, unmarked: false, interpr: RecInstr}, list{Mark(Mark(Empty)), form})
 
-Js.log( (FORM.Mark(Rel( FCtx(seqRe), Mark(Empty) )))->FORM.show )
+Js.log( (FORM.Mark(Rel( seqRe, Mark(Empty) )))->FORM.show )
 
 let fdna = FORM.FDna({
   dna: [M,N,U,I],
@@ -33,7 +33,7 @@ Js.log( iFORM ) // <- marked as Circular
 // Js.log( iFORM->FORM.show ) // <- Caution: Stack overflow!
 // Js.log( FORM.equiv(uFORM, uFORM) )
 
-// Js.log( FORM.equiv( Mark(Mark(Empty)), FCtx(FCon(M)) ) )
+// Js.log( FORM.equiv( Mark(Mark(Empty)), FCtx(Val(M)) ) )
 
 let form' = FORM.Rel( Mark(Mark(Empty)), Rel( Mark(Mark(Empty)), Mark(Mark(Empty)) ) )
 
@@ -93,11 +93,8 @@ Js.log2( Const.tToJs(val_c),
 
 {
   open Const
-  let nestedL = #NestToL(list{I})
-  let rsafe = UCalc.calc({re_n: 2, pre_n: 0, nStep: true, interpr: RecIdent}, nestedL)
-  switch rsafe {
-  | Some(r) => Js.log(r->Const.show)
-  | None => ()
-  }
+  let nestedR = #NestToR(list{N,I})
+  let r = UCalc.calc({reEntryPar: Even, unmarked: false, interpr: RecInstr}, nestedR)
+  Js.log(r->Const.show)
 
 }

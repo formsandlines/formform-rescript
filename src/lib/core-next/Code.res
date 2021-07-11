@@ -42,6 +42,46 @@ module VTable = {
 
   type t = Js.Dict.t<Const.t>
 
+  // let show = (vtable: t): string => {
+
+  // }
   // Js.Dict.fromArray
+
+  // module IntCmp = Belt.Id.MakeComparable({
+  //   type t = int
+  //   let cmp = Pervasives.compare
+  // })
+
+  // let makeN = ()
+
+
+
+  let make1 = (base, val: (Const.t) => Const.t) => {
+    let makeKey = (c) => c->Const.showAsKey
+    let raw = base
+      ->Js.Array2.map(c => (makeKey(c), val(c)) )
+
+    raw->Js.Dict.fromArray
+  }
+
+  let make2 = (base, val: (Const.t,Const.t) => Const.t) => {
+    let makeKey = (c,c') => c->Const.showAsKey ++ c'->Const.showAsKey
+    let raw = base
+      ->Js.Array2.map(c => (base->
+        Js.Array2.map(c' => (makeKey(c,c'), val(c,c')) ) ))
+
+    raw->Belt.Array.concatMany->Js.Dict.fromArray
+  }
+
+  let make3 = (base, val: (Const.t,Const.t,Const.t) => Const.t) => {
+    let makeKey = (c,c',c'') => c->Const.showAsKey ++ c'->Const.showAsKey ++ c''->Const.showAsKey
+    let raw = base
+      ->Js.Array2.map(c => (base->
+        Js.Array2.map(c' => (base->
+        Js.Array2.map(c'' => (makeKey(c,c',c''), val(c,c',c'')) ) )) ))
+
+    raw->Belt.Array.concatMany->Belt.Array.concatMany->Js.Dict.fromArray
+  }
+
 }
 

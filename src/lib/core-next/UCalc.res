@@ -1,8 +1,18 @@
 open Calc
 
-type t = UFORM | IFORM
+module F = {
+  type t = UFORM | IFORM
+
+  let show = (reType: t): string => {
+    switch reType {
+    | UFORM => "uFORM"
+    | IFORM => "iFORM"
+    }
+  }
+}
 
 module REsign = {
+  open Helper
   // ----------------------------------------------------
   // [REsign]: ReEntry signature -> instruction on how to
   //   recursively construct the ReEntry structure and
@@ -13,142 +23,166 @@ module REsign = {
   // -> See uFORM iFORM, p. 136
   type mn = RecInstr | RecIdent // default is RecInstr
 
-  type t = {re_n: int, pre_n: int, nStep: bool, interpr: mn}
+  type t = {reEntryPar: Parity.t, unmarked: bool, interpr: mn}
 
-  let show = ({re_n, pre_n, nStep, interpr}: t): string => {
-    let reDots = "."->Js.String2.repeat(re_n)
-    let preDots = "."->Js.String2.repeat(pre_n)
+  let show = ({reEntryPar, unmarked, interpr}: t): string => {
+    let (reDots, preDot) = switch reEntryPar {
+    | Even => ("..","")
+    | Odd  => ("..",".")
+    | Any  => ("","")
+    }
     let reMark = switch interpr {
     | RecInstr => "@"
     | RecIdent => "@'"
     }
-    `${reDots}${reMark}${preDots}${nStep ? "_" : ""}`
+    `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}`
   }
+
+  let getReType = ({reEntryPar, unmarked, _}: t, resPar: Parity.t): F.t =>
+    switch (resPar, reEntryPar) {
+    | (Even, _)   => unmarked ? IFORM : UFORM
+    | (Odd, Even) => UFORM
+    | (Odd, Odd)  => IFORM
+    | (_, _)      => IFORM // default (“Any”) re-entry parity for odd resolution is always odd
+    }
 }
 
-// let is_UFORM_or_IFORM = ({re_n, pre_n, nStep, interpr}: REsign.t): t => {
-
-// }
+exception Unreachable // this exception should never be thrown if I’ve done my job correctly
 
 /**
  * FORM arithmetic for different self-equivalent re-entry FORMs
  *
- * * rtl nesting is by convention
+ * * Note: the left-to-right nesting of values is contrary to convention in uFORM iFORM
  */
-let calc = ({re_n, pre_n, nStep, interpr}: REsign.t, 
-             #NestToL(nestedC: list<Const.t>)): option<Const.t> => {
+let calc = ({reEntryPar, unmarked, interpr}: REsign.t, 
+             #NestToR(nestedC: list<Const.t>)): Const.t => {
   open Helper
 
-  // ---
-  // ?? is_UFORM_or_IFORM ?
-  let nestedC_len = nestedC->Js.List.length
-  let resPar: Parity.t = mod(nestedC_len,2) == 0 ? Even : Odd
-
-  // ?? can parity checks be avoided if we just use parity by default? would get rid of the option
-  let reEntryPar: Parity.t =
-    if mod(re_n,2) == 0 {
-      mod((re_n + pre_n),2) == 0 ? Even : Odd
-    } else {
-      Both
-    }
+  let resPar: Parity.t = mod(nestedC->Js.List.length,2) == 0 ? Even : Odd
 
   // determine if uFORM or iFORM and modify nested [const] list accordingly
-  let (reType, nestedC): (option<t>, list<Const.t>) =
-    switch (resPar, reEntryPar) {
-    | (Even, Both) => (nStep ? Some(IFORM) : Some(UFORM), nestedC)
-    // ?? concat could happen in last step - but is needed by reduceL
-    | (Odd, Even)  => (Some(UFORM), nestedC->Belt.List.concat(nestedC))
-    | (Odd, Odd)   => (Some(IFORM), nestedC)
-    | (_, _)       => (None, nestedC)
-    }
-  // ---
+  let reType: F.t = REsign.getReType({reEntryPar, unmarked, interpr}, resPar)
 
-
+  // Js.log("--- Debug --->")
   if (nestedC->Belt.List.every(c => c == N)) {
     // [3] if all variables are N, the result depends on the shape of the FORM
+    // Js.log("All N case")
+    // Js.log(nestedC)
+    // Js.log(#NestToR(nestedC)->Nested.show)
+    // Js.log(reType->F.show)
+    // Js.log("<--- Debug ---")
+
     switch reType {
-    | Some(UFORM) => Some(Const.U)
-    | Some(IFORM) => Some(Const.I)
-    | None        => None
+    | UFORM => U
+    | IFORM => I
     }
-  } else if (nestedC->Belt.List.some(c => c == M) ||
-            (nestedC->Belt.List.some(c => c == U) && nestedC->Belt.List.some(c => c == I)) ) {
-    // [1] if innermost value is M, the rule of dominance holds
-    // [2] if at some point the nestedC values can be reduced algebraically, further steps are obsolete
-    let r = #NestToL(nestedC)->Nested.reduceL->Nested.calcL
-    Some(nStep ? Const.inv(r) : r) // ?? can we avoid the double mark for open FORMs?
-
   } else {
-    // now we are at a situation where only one either U or I value remains
-
-    let #NestToL(nestedC) = #NestToL(nestedC)->Nested.reduceByCrossingL
-    let nestedC_rev = nestedC->Js.List.rev // ?? can reversing be here avoided?
-    let bottom_c = nestedC_rev->Js.List.hd
-
-    if (interpr == RecIdent) && !nStep && (bottom_c == Some(N)) {
-      // uFORM a1: [U,N]   -> f=((fU).) <-> f=fU <-> UU <-> U
-      //           [I,N]   -> f=((fI).) <-> f=fI <-> UI <-> M
-      // iFORM b1: [N,U,N] -> f{f}=(((f.)U).), f=<c1> <-> f{f}=(f)U, f=fU <-> (U)U <-> ()U <-> M
-      //           [N,I,N] -> f{f}=(((f.)I).), f=<c1> <-> f{f}=(f)I, f=fI <-> (UI)I <-> (M)I <-> I
-      // iFORM c1: [N,U,N] -> f=((((((f.).).).)U).) <-> f=fU <-> UU <-> U
-      //           [N,I,N] -> f=((((((f.).).).)I).) <-> f=fI <-> UI <-> M
-      switch nestedC_rev {
-      | list{_,c, ..._} => switch reType {
-        | Some(UFORM) => Some(Const.rel(U,c))
-        | Some(IFORM) => Some(Const.rel(I,c))
-        | None => None
-        }
-      | _ => None
-      }
-    } else if (interpr == RecIdent) && nStep && (bottom_c != Some(N)) {
-      // iFORM a2: [N,U] -> f{f}=(f.)U, f=((f.)U) <-> (((U).))U <-> ()U <-> M
-      //           [N,I] -> f{f}=(f.)I, f=((f.)I) <-> (((U).))I <-> (U)I <-> I
-      // iFORM b2: [U]   -> h{g}=gU, g{f}=(fU), f=((f.)U) <-> (((U.).).)U <-> ()U <-> M
-      //           [I]   -> h{g}=gI, g{f}=(fI), f=((f.)I) <-> (((U.).).)I <-> (U)I <-> I
-      // uFORM c2: [U]   -> g{f}=fU, f=((f.)U) <-> ((U.).)U <-> U
-      //           [I]   -> g{f}=fI, f=((f.)I) <-> ((U.).)I <-> UI <-> M
-      switch bottom_c { // ?? can we avoid the code repetition?
-      | Some(c) => switch reType {
-        | Some(UFORM) => Some(Const.rel(U,c))
-        | Some(IFORM) => Some(Const.rel(I,c))
-        | None => None
-        }
-      | None => None
-      }      
+    let nestedC = if (!unmarked && resPar == Odd && reEntryPar == Even) {
+      // ?? concat could happen in last step - but is needed by reduceR
+      nestedC->Belt.List.concat(nestedC)
     } else {
-      // uFORMs a1 and c1 are - in this last step - equivalent if c1 is sufficiently reduced:
-      // [N,U,N,N,U,N] ((((((.)u).).)u).) == ((((.)u)u).) == ((((.).)u).) == ((u).) -> [U,N]
-      // [U,N,N,U,N,N] ((((((u).).)u).).) == ((u)u) == ((.)u) -> [N,U]
-      // [N,N,U,N,N,U] ((((((.).)u).).)u) == ((u)u) == ((.)u) -> [N,U]
-      // however, they will differ in their open variants since the base resolution parity is different
+      nestedC
+    }
+    // Js.log("Original list (maybe twice):")
+    // Js.log(nestedC)
+    // Js.log(#NestToR(nestedC)->Nested.show)
 
-      if !nStep {
-        switch nestedC {
-        | list{U,N} => Some(I)
-        | list{I,N} => Some(I)
-        | list{N,U,N} => reEntryPar == Odd ? Some(U) : Some(I)
-        | list{N,I,N} => reEntryPar == Odd ? Some(U) : Some(I)
-        | list{N,U} => Some(U)
-        | list{N,I} => Some(U)
-        | list{U} => reEntryPar == Odd ? Some(I) : Some(U)
-        | list{I} => reEntryPar == Odd ? Some(I) : Some(U)
-        | _ => None
+    if (nestedC->Belt.List.some(c => c == M) ||
+       (nestedC->Belt.List.some(c => c == U) && nestedC->Belt.List.some(c => c == I)) ) {
+      // [1] if innermost value is M, the rule of dominance holds
+      // [2] if at some point the nestedC values can be reduced algebraically, further steps are obsolete
+      // Js.log("Binary case")
+      // Js.log(nestedC)
+      // Js.log(#NestToR(nestedC)->Nested.show)
+      // Js.log(reType->F.show)
+      // Js.log("<--- Debug ---")
+
+      let r = #NestToR(nestedC)->Nested.reduceR->Nested.calcR
+      unmarked ? Const.inv(r) : r // ?? can we avoid the double mark for open FORMs?
+
+    } else {
+      // now we are at a situation where only one either U or I value remains
+
+      // ?? calling is redundant for RecIdent, but crossing needs to happen after calling
+      let #NestToR(nestedC) = #NestToR(nestedC)->Nested.reduceR
+      let bottom_c = nestedC->Js.List.hd
+
+      if (interpr == RecIdent) && !unmarked && (bottom_c == Some(N)) {
+        // uFORM a1: [N,U]   -> f=((fU).) <-> f=fU <-> UU <-> U
+        //           [N,I]   -> f=((fI).) <-> f=fI <-> UI <-> M
+        // iFORM b1: [N,U,N] -> f{f}=(((f.)U).), f=<c1> <-> f{f}=(f)U, f=fU <-> (U)U <-> ()U <-> M
+        //           [N,I,N] -> f{f}=(((f.)I).), f=<c1> <-> f{f}=(f)I, f=fI <-> (UI)I <-> (M)I <-> I
+        // iFORM c1: [N,U,N] -> f=((((((f.).).).)U).) <-> f=fU <-> UU <-> U
+        //           [N,I,N] -> f=((((((f.).).).)I).) <-> f=fI <-> UI <-> M
+        // Js.log("Alt. Interpr. closed")
+        // Js.log(nestedC)
+        // Js.log(#NestToR(nestedC)->Nested.show)
+        // Js.log(reType->F.show)
+        // Js.log("<--- Debug ---")
+
+        switch (nestedC, reType) {
+        | (list{_,c, ..._}, UFORM) => Const.rel(U,c)
+        | (list{_,c, ..._}, IFORM) => Const.rel(I,c)
+        | _ => raise(Unreachable)
         }
+
+      } else if (interpr == RecIdent) && unmarked && (bottom_c != Some(N)) {
+        // iFORM a2: [U,N] -> f{f}=(f.)U, f=((f.)U) <-> (((U).))U <-> ()U <-> M
+        //           [I,N] -> f{f}=(f.)I, f=((f.)I) <-> (((U).))I <-> (U)I <-> I
+        // iFORM b2: [U]   -> h{g}=gU, g{f}=(fU), f=((f.)U) <-> (((U.).).)U <-> ()U <-> M
+        //           [I]   -> h{g}=gI, g{f}=(fI), f=((f.)I) <-> (((U.).).)I <-> (U)I <-> I
+        // uFORM c2: [U]   -> g{f}=fU, f=((f.)U) <-> ((U.).)U <-> U
+        //           [I]   -> g{f}=fI, f=((f.)I) <-> ((U.).)I <-> UI <-> M
+        // Js.log("Alt. Interpr. open")
+        // Js.log(nestedC)
+        // Js.log(#NestToR(nestedC)->Nested.show)
+        // Js.log(reType->F.show)
+        // Js.log("<--- Debug ---")
+
+        switch (bottom_c, reType) { // ?? can we avoid the code repetition?
+        | (Some(c), UFORM) => Const.rel(U,c)
+        | (Some(c), IFORM) => Const.rel(I,c)
+        | _ => raise(Unreachable)
+        }
+
       } else {
-        switch nestedC {
-        | list{U,N} => Some(I) // same
-        | list{I,N} => Some(I) // same
-        | list{N,U,N} => reEntryPar == Odd ? Some(I) : Some(U) // U/I swapped   <-- in the Odd case mn is (mn)!
-        | list{N,I,N} => reEntryPar == Odd ? Some(I) : Some(U) // U/I swapped   <-- in the Odd case mn is (mn)!
-        | list{N,U} => Some(U) // same
-        | list{N,I} => Some(U) // same
-        | list{U} => reEntryPar == Odd ? Some(U) : Some(I) // U/I swapped   <-- in the Odd case mn is (mn)!
-        | list{I} => reEntryPar == Odd ? Some(U) : Some(I) // U/I swapped   <-- in the Odd case mn is (mn)!
-        | _ => None
+        // uFORMs a1 and c1 are - in this last step - equivalent if c1 is sufficiently reduced:
+        // [N,U,N,N,U,N] ((((((.)u).).)u).) == ((((.)u)u).) == ((((.).)u).) == ((u).) -> [N,U]
+        // [N,N,U,N,N,U] ((((((u).).)u).).) == ((u)u) == ((.)u) -> [U,N]
+        // [U,N,N,U,N,N] ((((((.).)u).).)u) == ((u)u) == ((.)u) -> [U,N]
+        // however, they will differ in their open variants since the base resolution parity is different
+
+        // let #NestToR(nestedC) = #NestToR(nestedC)->Nested.reduceByCallingR
+
+        // (.(i(.(.(i(.)))))) = mn -> .(i(mn))
+
+        // Js.log("Case Distinction")
+        // Js.log(nestedC)
+        // Js.log(#NestToR(nestedC)->Nested.show)
+        // Js.log(reType->F.show)
+        // Js.log("<--- Debug ---")
+
+        if !unmarked {
+          switch nestedC {
+          | list{N,U}   | list{N,I}   => I
+          | list{N,U,N} | list{N,I,N} => reEntryPar == Even ? I : U
+          | list{U,N}   | list{I,N}   => U
+          | list{U}     | list{I}     => reEntryPar == Even ? U : I
+          | _ => raise(Unreachable)
+          }
+        } else {
+          // in the Odd re-entry case (even resolution), mn is (mn)!
+          switch nestedC {
+          | list{N,U}   | list{N,I}   => I // same
+          | list{N,U,N} | list{N,I,N} => reEntryPar == Even ? U : I // U/I swapped
+          | list{U,N}   | list{I,N}   => U // same
+          | list{U}     | list{I}     => reEntryPar == Even ? I : U // U/I swapped
+          | _ => raise(Unreachable)
+          }
         }
       }
-    }
 
+    }
   }
 
 }

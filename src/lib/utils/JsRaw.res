@@ -1,0 +1,1 @@
+let padStart = %raw(`(str, maxLength, fillString) => str.padStart(maxLength, fillString)`)
