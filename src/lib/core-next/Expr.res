@@ -1,6 +1,9 @@
 open Calc
 
 module FORM = {
+  // ===================================================================
+  // [FORM]: FORM expression -> structure that evaluates to a [Const]
+  // ===================================================================
   
   type rec t = 
     | Empty
@@ -8,6 +11,7 @@ module FORM = {
     | Rel(t, t)
     | Val(Const.t)
     | SeqRE(UCalc.REsign.t, list<t>)
+    | FUncl(string)
 
   let rec show = (expr: t): string =>
     switch expr {
@@ -27,6 +31,7 @@ module FORM = {
         }
         `{${reSign->UCalc.REsign.show} ${formStr}}`
       }
+    | FUncl(lbl) => "/" ++ lbl ++ "/"
     }
 
   let rec eval = (expr: t): Const.t =>
@@ -42,6 +47,6 @@ module FORM = {
         let vals = forms->Belt.List.map(f => eval(f))
         UCalc.calc(reSign, #NestToR(vals))
       }
+    | FUncl(_) => U
     }
-
 }

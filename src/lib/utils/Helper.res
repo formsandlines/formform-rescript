@@ -8,3 +8,5 @@ module Parity = {
   }
 
 }
+
+let common_vars = "abcdefghijklmnopqrstuvwxyz"->Js.String2.split("")

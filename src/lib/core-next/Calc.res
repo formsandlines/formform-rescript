@@ -1,6 +1,6 @@
 module Const = {
   // ===================================================================
-  // [Const]: Constant -> simple values of the tetravalent FORM calculus
+  // [Const]: constant -> simple values of the tetravalent FORM calculus
   // 
   // Note: values are in NUIM ordering, different from uFORM iFORM
   //   This is because this ordering has some beneficial properties
@@ -28,13 +28,14 @@ module Const = {
   /**
    * Output index from [Const] in NMUI ordering (used by uFORM iFORM)
    */
-  let tToJs_NMUI = (c: t): int => {
+  let toInt = (~sortNMUI=false, c: t): int => {
     // output constants in NMUI ordering (used by uFORM iFORM)
-    switch tToJs(c) {
-    | 0 => 0
-    | 1 => 2
-    | 2 => 3
-    | 3 => 1
+    let n = tToJs(c)
+    switch n {
+    | 0 => n
+    | 1 => sortNMUI ? 2 : n
+    | 2 => sortNMUI ? 3 : n
+    | 3 => sortNMUI ? 1 : n
     | _ => -99
     }
   }
@@ -42,13 +43,13 @@ module Const = {
   /**
    * Output [Const] from index in NMUI ordering (used by uFORM iFORM)
    */
-  let tFromJs_NMUI = (n: int): option<t> => {
-    switch tFromJs(n) {
-    | Some(N) => Some(N)
-    | Some(U) => Some(M)
-    | Some(I) => Some(U)
-    | Some(M) => Some(I)
-    | None    => None
+  let fromInt = (~sortNMUI=false, n: int): option<t> => {
+    let _c = tFromJs(n)
+    switch _c {
+    | Some(U) => sortNMUI ? Some(M) : _c
+    | Some(I) => sortNMUI ? Some(U) : _c
+    | Some(M) => sortNMUI ? Some(I) : _c
+    | _       => _c
     }
   }
 
@@ -65,11 +66,10 @@ module Const = {
     }
   }
 
-  let enum = (): array<t> =>
-    Belt.Array.makeBy(4, (i) => tFromJs(i)->Belt.Option.getExn)
-
-  let enum_NMUI = (): array<t> =>
-    Belt.Array.makeBy(4, (i) => tFromJs_NMUI(i)->Belt.Option.getExn)
+  let enum: array<t> = [N,U,I,M]
+  let enum_NMUI: array<t> = [N,M,U,I]
+  let enumNM: array<t> = [N,M]
+  let enumUI: array<t> = [U,I]
 
 
   // ----------------------------------------------------
@@ -104,7 +104,7 @@ module Const = {
 
 module Nested = {
   // ===================================================================
-  // [Nested]: Nested Constants -> nested [Const] values
+  // [Nested]: nested constants -> nested [Const] values
   // ===================================================================
 
   /*

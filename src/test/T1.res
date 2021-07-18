@@ -8,7 +8,7 @@ Js.log( result )
 Js.log( result->Const.show )
 
 
-let form = FORM.Mark( Rel( Val(U), FUncl("Welt",1) ) )
+let form = FORM.Mark( Rel( Val(U), FUncl("Welt") ) )
 
 Js.log( form->FORM.show )
 
@@ -16,13 +16,13 @@ let seqRe = FORM.SeqRE({reEntryPar: Odd, unmarked: false, interpr: RecInstr}, li
 
 Js.log( (FORM.Mark(Rel( seqRe, Mark(Empty) )))->FORM.show )
 
-let fdna = FORM.FDna({
-  dna: [M,N,U,I],
-  varlist: Some(["a","b"]),
-  form: Some(form)
-})
+// let fdna = FORM.FDna({
+//   dna: [M,N,U,I],
+//   varlist: Some(["a","b"]),
+//   form: Some(form)
+// })
 
-Js.log( fdna->FORM.show )
+// Js.log( fdna->FORM.show )
 
 let rec uFORM = FORM.Mark( Mark(uFORM) )
 let iFORM = FORM.Mark( uFORM )
@@ -51,12 +51,12 @@ Js.log3(vtable, vtable->Js.Dict.get("a"), vtable->Js.Dict.set("c",Const.M)) // .
 
 
 let val_n = 3
-Js.log2( Const.tFromJs(val_n)->Belt.Option.map( c => c->Const.show ),
-         Const.tFromJs_NMUI(val_n)->Belt.Option.map( c => c->Const.show ) )
+Js.log2( val_n->Const.fromInt->Belt.Option.map( c => c->Const.show ),
+         val_n->Const.fromInt(~sortNMUI=true)->Belt.Option.map( c => c->Const.show ) )
 
 let val_c = Const.I
-Js.log2( Const.tToJs(val_c),
-         Const.tToJs_NMUI(val_c) )
+Js.log2( Const.toInt(val_c),
+         Const.toInt(val_c, ~sortNMUI=true) )
 
 
 {

@@ -2,6 +2,7 @@
 .editorconfig
 /node_modules/
 /lib/
+/src/**/*.bs.js
 .bsb.lock
 .merlin
 .vscode
