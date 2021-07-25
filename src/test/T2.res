@@ -16,7 +16,7 @@ open Calc
   open Expr
 
   // let f = FORM.Mark(Rel(Rel(Empty,Val(U)), SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{Val(I),Mark(Val(U))})))
-  let f = FORM.Mark(Rel(Val(I), Val(U)))
+  let f = FORM.Mark(Rel([ Val(I), Val(U) ]))
 
   let f' = FORM.Mark(Mark(Val(M)))
   
@@ -37,7 +37,7 @@ open Calc
     Js.log2(ex->FORMula.show, ex'->FORMula.show)
     // Js.log(FORMula.equiv(ex, ex'))
 
-    let ff = FORMula.Rel(Mark(Rel(FVar("a"),Mark(FVar("b")))),FVar("a"))
+    let ff = FORMula.Rel([ Mark(Rel([ FVar("a"),Mark(FVar("b")) ])),FVar("a") ])
 
     // let ff'' = FORMula.Mark(Rel(Mark(Rel(FVar("a"),Mark(Rel(FVar("b"),Val(M))))), Mark(Rel(Mark(FVar("c")),FVar("d")))))
 
@@ -58,7 +58,7 @@ open Calc
 
   {
     open Alg
-    let ff = FORMula.Mark(Mark(Rel(Mark(FVar("a")),FVar("b"))))
+    let ff = FORMula.Mark(Mark(Rel([ Mark(FVar("a")),FVar("b") ])))
     // let ff = FORMula.Rel(Mark(Mark(Val(U))), Val(I))
 
     let ff' = ff->Pattern.Equiv.applyR(PrimAlg.refl)
@@ -73,7 +73,7 @@ open Calc
 {
   open Alg
 
-  let f = FORMula.Rel(Mark(Rel(FVar("a"),FVar("c"))),FVar("b"))
+  let f = FORMula.Rel([ Mark(Rel([ FVar("a"),FVar("c") ])),FVar("b") ])
   // let f = FORMula.FVar("a")
   // let f = FORMula.Rel(FVar("a"),FVar("b"))
 

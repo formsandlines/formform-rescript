@@ -30,9 +30,8 @@ module FORMula = {
   // ===================================================================
 
   type rec t = 
-    | Empty
     | Mark(t)
-    | Rel(t, t)
+    | Rel(array<t>)
     | Val(Const.t)
     | SeqRE(UCalc.REsign.t, list<t>)
     | FUncl(string)
@@ -47,10 +46,10 @@ module FORMula = {
 
   let rec show = (~sortNMUI=false, formula: t): string =>
     switch formula {
-    | Empty => "."
     | Mark(f) => "(" ++ f->show(~sortNMUI=sortNMUI) ++ ")"
-    | Rel(fa, fb) => fa->show(~sortNMUI=sortNMUI) ++ fb->show(~sortNMUI=sortNMUI)
-    | Val(c) => c->Const.show
+    | Rel([]) => "."
+    | Rel(fs) => fs->Js.Array2.map(f => f->show(~sortNMUI=sortNMUI))->Js.Array2.joinWith("")
+    | Val(c)  => c->Const.show
     | SeqRE(reSign, forms) => {
         let formStr = {
           let rec showForms = (forms: list<t>): string =>
@@ -64,7 +63,7 @@ module FORMula = {
         `{${reSign->UCalc.REsign.show} ${formStr}}`
       }
     | FUncl(lbl) => "/" ++ lbl ++ "/"
-    | FVar(lbl) => lbl
+    | FVar(lbl)  => lbl
     | FDna(fDna) => fDna->showFDna(~sortNMUI=sortNMUI)
     }
   and showFDna = (~sortNMUI=false, {dna, form, vars}: fdna): string => {
@@ -83,20 +82,20 @@ module FORMula = {
 
   let rec fromExpr = (expr: FORM.t): t =>
     switch expr {
-    | FORM.Rel(list{}) => Empty
-    | FORM.Val(c) => Val(c)
+    | FORM.Rel([]) => Rel([])
+    | FORM.Val(c)  => Val(c)
     | FORM.Mark(f) => Mark(fromExpr(f))
-    | FORM.Rel(list{f, f'}) => Rel(fromExpr(f), fromExpr(f'))
+    | FORM.Rel(fs) => Rel(fs->Js.Array2.map(f => fromExpr(f)))
     | FORM.SeqRE(sign, fs) => SeqRE(sign, fs->Belt.List.map(f => fromExpr(f)))
     | FORM.FUncl(lbl) => FUncl(lbl)
   }
 
   let rec interpret = (formula: t, intpr: Interpr.t): FORM.t => {
     switch formula {
-    | Empty => FORM.none
     | Mark(f) => FORM.Mark(interpret(f, intpr))
-    | Rel(fa, fb) => FORM.Rel(list{interpret(fa, intpr), interpret(fb, intpr)})
-    | Val(c) => FORM.Val(c)
+    | Rel([]) => FORM.Rel([])
+    | Rel(fs) => FORM.Rel(fs->Js.Array2.map(f => interpret(f, intpr)))
+    | Val(c)  => FORM.Val(c)
     | SeqRE(reSign, forms) => {
         let forms_interpr: Sequence.t = forms->Belt.List.map(f => interpret(f, intpr))
         FORM.SeqRE(reSign, forms_interpr)
@@ -110,15 +109,15 @@ module FORMula = {
         | None => raise(Not_found) // uninterpreted or misspelled label!
         }
       }
-    | FDna({dna, form, vars}) => FORM.none // ! incorrect -> build FORM from polynomials
+    | FDna({dna, form, vars}) => FORM.Rel([]) // ! incorrect -> build FORM from polynomials
     }
   }
 
   let rec reduce = (reducerFn, init, formula) => {
     let acc = reducerFn(init, formula)
     switch formula {
-    | Mark(f)     => reduce(reducerFn, acc, f)
-    | Rel(fa, fb) => [fa, fb]->Js.Array2.reduce(reduce(reducerFn), acc)
+    | Mark(f) => reduce(reducerFn, acc, f)
+    | Rel(fs) => fs->Js.Array2.reduce(reduce(reducerFn), acc)
     | _ => acc
     }
   }
@@ -194,40 +193,40 @@ module Isolator = {
 
   // 0 → 1: `( {@(a)} {..@(a)} )`
   let n = (var: string): t =>
-    Mark(Rel(
+    Mark(Rel([
       SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{ Mark(FVar(var)) }),
       SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{ Mark(FVar(var)) })
-    ))
+    ]))
   // 1 → 1: `( {@a} {..@a} )`
   let m = (var: string): t =>
-    Mark(Rel(
+    Mark(Rel([
       SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{ FVar(var) }),
       SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{ FVar(var) })
-    ))
+    ]))
   // 2 → 1: `( ({@(a)}a) ({..@a}(a)) )`
   let u = (var: string): t =>
-    Mark(Rel(
-      Mark(Rel(
+    Mark(Rel([
+      Mark(Rel([
         SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{ Mark(FVar(var)) }),
         FVar(var)
-      )),
-      Mark(Rel(
+      ])),
+      Mark(Rel([
         SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{ FVar(var) }),
         Mark(FVar(var))
-      ))
-    ))
+      ]))
+    ]))
   // 3 → 1: `( ({@a}(a)) ({..@(a)}a) )`
   let i = (var: string): t =>
-    Mark(Rel(
-      Mark(Rel(
+    Mark(Rel([
+      Mark(Rel([
         SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{ FVar(var) }),
         Mark(FVar(var))
-      )),
-      Mark(Rel(
+      ])),
+      Mark(Rel([
         SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{ Mark(FVar(var)) }),
         FVar(var)
-      ))
-    ))
+      ]))
+    ]))
 
   let get = (c: Const.t, var: string): t => switch c {
   | N => n(var) | M => m(var) | U => u(var) | I => i(var)
@@ -240,10 +239,10 @@ module Isolator = {
     if (vars->Js.Array2.length < vp->Belt.List.length) {
       raise(Js.Exn.raiseRangeError("Insufficient variables in given list!"))
     } else {
-      Mark( vp->Belt.List.reduceWithIndex(FORMula.Empty, (f, c, i) => {
+      Mark( vp->Belt.List.reduceWithIndex(FORMula.Rel([]), (f, c, i) => {
         let var = vars[i]
-        if (f == Empty) { Mark(get(c,var)) }
-        else { Rel( f, Mark(get(c,var)) ) }
+        if (f == Rel([])) { Mark(get(c,var)) }
+        else { Rel([ f, Mark(get(c,var)) ]) }
       }) )
     }
   }

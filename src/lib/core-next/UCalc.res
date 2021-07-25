@@ -35,7 +35,8 @@ module REsign = {
     | RecInstr => "@"
     | RecIdent => "@'"
     }
-    `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}`
+    `${unmarked ? "_" : ""}${preDot}${reMark}${reDots}` // <- nest to right
+    // `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}`
   }
 
   let getReType = ({reEntryPar, unmarked, _}: t, resPar: Parity.t): F.t =>

@@ -8,7 +8,7 @@ module FORM = {
   
   type rec t = 
     | Mark(t)
-    | Rel(list<t>)
+    | Rel(array<t>)
     | Val(Const.t)
     | SeqRE(UCalc.REsign.t, seq)
     | FUncl(string)
@@ -28,19 +28,21 @@ Rel(Mark(), Rel(Rel(Mark(), Mark()), None))
   == Rel(Rel(Mark(), Mark()), Rel(Mark(), None))
   <=> ()()().
 
+
+
 */
 
 
-  let none = Rel(list{})
+  let none = Rel([])
   let mark = Mark(none)
 
   let rec show = (expr: t) =>
     switch expr {
     | Mark(f) => "(" ++ f->show ++ ")"
-    | Rel(list{}) => "."
-    | Rel(fs) => fs->Belt.List.map(f => f->show)->ListExtensions.join
+    | Rel([]) => "."
+    | Rel(fs) => fs->Js.Array2.map(f => f->show)->Js.Array2.joinWith("")
     | Val(c) => c->Const.show
-    | SeqRE(reSign, forms) => `{${reSign->UCalc.REsign.show} ${forms->showSeq}}`
+    | SeqRE(reSign, forms) => `{${forms->showSeq} ${reSign->UCalc.REsign.show}}`
     | FUncl(lbl) => "/" ++ lbl ++ "/"
     }
   and showSeq = (seq: seq) =>
@@ -50,7 +52,7 @@ Rel(Mark(), Rel(Rel(Mark(), Mark()), None))
     let acc = reducerFn(init, form)
     switch form {
     | Mark(f) => reduce(reducerFn, acc, f)
-    | Rel(fs) => fs->Belt.List.reduce(acc, reduce(reducerFn))
+    | Rel(fs) => fs->Js.Array2.reduce(reduce(reducerFn), acc)
     | _ => acc
     }
   }
@@ -63,11 +65,11 @@ Rel(Mark(), Rel(Rel(Mark(), Mark()), None))
 
   let rec eval = (expr: t): Const.t =>
     switch expr {
-    | Rel(list{}) => N
-    | Mark(Rel(list{})) => M
+    | Rel([]) => N
+    | Mark(Rel([])) => M
 
     | Mark(f) => Const.inv(eval(f))
-    | Rel(fs) => fs->Belt.List.reduce(Const.N, (val,f) => Const.rel(val, eval(f)))
+    | Rel(fs) => fs->Js.Array2.reduce((val,f) => Const.rel(val, eval(f)), Const.N)
     | Val(c) => c
 
     | SeqRE(reSign, forms) => UCalc.calc(reSign, forms->nestedEval)
@@ -169,7 +171,7 @@ module Sequence = {
     switch seq {
     | list{}  => none
     | list{f} => f
-    | list{f, ...fs} => Rel(list{f, Mark(fs->toFORMt)})
+    | list{f, ...fs} => Rel([f, Mark(fs->toFORMt)])
     }
   }
 
@@ -204,7 +206,7 @@ module Sequence = {
   //   form |> FORM.reduce(_makeList, list{})
   // }
 
-  let rec fromFORMt = (form: FORM.t): option<t> =>
+  let rec fromFORMt = (form: FORM.t): option<t> => // ! not working yet
     switch form {
     | Mark(a) => {
         switch fromFORMt(a) {

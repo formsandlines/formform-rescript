@@ -8,13 +8,14 @@ Js.log( result )
 Js.log( result->Const.show )
 
 
-let form = FORM.Mark( Rel( Val(U), FUncl("Welt") ) )
+let form = FORM.Mark( Rel([ Val(U), FUncl("Welt") ]) )
 
 Js.log( form->FORM.show )
 
-let seqRe = FORM.SeqRE({reEntryPar: Odd, unmarked: false, interpr: RecInstr}, list{Mark(Mark(Empty)), form})
+let seqRe = FORM.SeqRE({reEntryPar: Odd, unmarked: false, interpr: RecInstr},
+  list{Mark(Mark(FORM.none)), form})
 
-Js.log( (FORM.Mark(Rel( seqRe, Mark(Empty) )))->FORM.show )
+Js.log( FORM.Mark(Rel([ seqRe, Mark(FORM.none) ]))->FORM.show )
 
 // let fdna = FORM.FDna({
 //   dna: [M,N,U,I],
@@ -35,11 +36,13 @@ Js.log( iFORM ) // <- marked as Circular
 
 // Js.log( FORM.equiv( Mark(Mark(Empty)), FCtx(Val(M)) ) )
 
-let form' = FORM.Rel( Mark(Mark(Empty)), Rel( Mark(Mark(Empty)), Mark(Mark(Empty)) ) )
+{
+  open FORM
+  let form' = FORM.Rel([ Mark(Mark(none)), Mark(Mark(none)), Mark(Mark(none)) ])
 
-Js.log( FORM.show(form') )
-Js.log( FORM.eval(form') )
-
+  Js.log( FORM.show(form') )
+  Js.log( FORM.eval(form') )
+}
 Js.log( Nested.calcL(#NestToL(list{M,N,N}: list<Const.t>)) )
 
 // ((m).).
