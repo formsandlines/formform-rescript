@@ -162,26 +162,6 @@ module FORMula = {
     { dna: fdna, form: Some(formula), vars: Some(vars) }
   }
 
-    // let val_num = Js.Math.floor_int(4.0 ** vnum->Belt.Int.toFloat)
-
-    // Belt.Array.makeBy(val_num,(i) => {
-    //   let interprVals = Js.Int.toStringWithRadix(i,~radix=4)->JsRaw.padStart(vnum,"0");
-    //   let interpr = interprVals
-    //     ->Js.String2.split("")
-    //     ->Js.Array2.mapi((val,n) => {
-    //       let valC = switch (val->Belt.Int.fromString) {
-    //       | Some(n) => switch n->(sortNMUI ? Const.tFromJs_NMUI : Const.tFromJs) {
-    //         | Some(c) => c
-    //         | None => raise(Not_found)
-    //         }
-    //       | None => raise(Not_found)
-    //       }
-    //       (vars->Js.Array2.unsafe_get(n), valC)
-    //     })
-    //   formula->interEval(interpr->Js.Dict.fromArray)
-    // })
-
-
 }
 
 module Isolator = {

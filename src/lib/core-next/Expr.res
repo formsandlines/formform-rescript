@@ -15,24 +15,6 @@ module FORM = {
   and seq =
     list<t>
 
-/*
-
-Rel[ Mark(), Rel[Mark(), Mark()], Rel[] ]
-  == Rel[ Mark(), Rel[Mark()], Mark(), Rel[] ]
-  == Rel[ Mark(), Mark(), Rel[Mark(), Rel[]] ]
-  == Rel[ Mark(), Rel[Mark(), Mark(), Rel[]] ]
-  <=> ()()().
-
-Rel(Mark(), Rel(Rel(Mark(), Mark()), None))
-  == Rel(Mark(), Rel(Mark(), Rel(Mark(), None)))
-  == Rel(Rel(Mark(), Mark()), Rel(Mark(), None))
-  <=> ()()().
-
-
-
-*/
-
-
   let none = Rel([])
   let mark = Mark(none)
 
@@ -57,12 +39,6 @@ Rel(Mark(), Rel(Rel(Mark(), Mark()), None))
     }
   }
 
-    // switch seq {
-    // | list{} => Empty->show
-    // | list{f, ...fs} => f->show ++ ""
-    // // | list{f} => f->show
-    // }
-
   let rec eval = (expr: t): Const.t =>
     switch expr {
     | Rel([]) => N
@@ -73,19 +49,10 @@ Rel(Mark(), Rel(Rel(Mark(), Mark()), None))
     | Val(c) => c
 
     | SeqRE(reSign, forms) => UCalc.calc(reSign, forms->nestedEval)
-        // let vals = forms->Belt.List.map(f => eval(f))
-        // UCalc.calc(reSign, #NestToR(vals))
-      // }
     | FUncl(_) => U
     }
   and nestedEval = (seq: seq) =>
     #NestToR( seq->Belt.List.map(f => f->eval) )
-  // and evalSeq = (seq: seq): Const.t =>
-  //   switch seq {
-  //   | list{}  => eval(Empty)
-  //   | list{f} => eval(f)
-  //   | list{f, ...fs} => Const.rel(eval(f), Const.inv(fs->evalSeq))
-  //   }
 
 
 }

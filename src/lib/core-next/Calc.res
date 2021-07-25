@@ -119,7 +119,7 @@ module Nested = {
    */
   type t = [#NestToL(list<Const.t>) | #NestToR(list<Const.t>)]
 
-  let show = (nest: t): string =>
+  let show = (nest): string =>
     switch nest {
     | #NestToL(list{}) => Const.N->Const.show
     | #NestToL(clist) => "("++clist->Belt.List.reduce("", (str, c) =>
