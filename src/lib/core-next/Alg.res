@@ -83,19 +83,19 @@ module FORMula = {
 
   let rec fromExpr = (expr: FORM.t): t =>
     switch expr {
-    | FORM.Empty => Empty
+    | FORM.Rel(list{}) => Empty
     | FORM.Val(c) => Val(c)
     | FORM.Mark(f) => Mark(fromExpr(f))
-    | FORM.Rel(f, f') => Rel(fromExpr(f), fromExpr(f'))
+    | FORM.Rel(list{f, f'}) => Rel(fromExpr(f), fromExpr(f'))
     | FORM.SeqRE(sign, fs) => SeqRE(sign, fs->Belt.List.map(f => fromExpr(f)))
     | FORM.FUncl(lbl) => FUncl(lbl)
   }
 
   let rec interpret = (formula: t, intpr: Interpr.t): FORM.t => {
     switch formula {
-    | Empty => FORM.Empty
+    | Empty => FORM.none
     | Mark(f) => FORM.Mark(interpret(f, intpr))
-    | Rel(fa, fb) => FORM.Rel(interpret(fa, intpr), interpret(fb, intpr))
+    | Rel(fa, fb) => FORM.Rel(list{interpret(fa, intpr), interpret(fb, intpr)})
     | Val(c) => FORM.Val(c)
     | SeqRE(reSign, forms) => {
         let forms_interpr: Sequence.t = forms->Belt.List.map(f => interpret(f, intpr))
@@ -110,7 +110,7 @@ module FORMula = {
         | None => raise(Not_found) // uninterpreted or misspelled label!
         }
       }
-    | FDna({dna, form, vars}) => Empty // ! incorrect -> build FORM from polynomials
+    | FDna({dna, form, vars}) => FORM.none // ! incorrect -> build FORM from polynomials
     }
   }
 

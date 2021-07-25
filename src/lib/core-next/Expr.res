@@ -1,4 +1,5 @@
 open Calc
+open Helper
 
 module FORM = {
   // ===================================================================
@@ -6,36 +7,50 @@ module FORM = {
   // ===================================================================
   
   type rec t = 
-    | Empty
     | Mark(t)
-    | Rel(t, t)
+    | Rel(list<t>)
     | Val(Const.t)
     | SeqRE(UCalc.REsign.t, seq)
     | FUncl(string)
   and seq =
     list<t>
 
+/*
+
+Rel[ Mark(), Rel[Mark(), Mark()], Rel[] ]
+  == Rel[ Mark(), Rel[Mark()], Mark(), Rel[] ]
+  == Rel[ Mark(), Mark(), Rel[Mark(), Rel[]] ]
+  == Rel[ Mark(), Rel[Mark(), Mark(), Rel[]] ]
+  <=> ()()().
+
+Rel(Mark(), Rel(Rel(Mark(), Mark()), None))
+  == Rel(Mark(), Rel(Mark(), Rel(Mark(), None)))
+  == Rel(Rel(Mark(), Mark()), Rel(Mark(), None))
+  <=> ()()().
+
+*/
+
+
+  let none = Rel(list{})
+  let mark = Mark(none)
+
   let rec show = (expr: t) =>
     switch expr {
-    | Empty => "."
     | Mark(f) => "(" ++ f->show ++ ")"
-    | Rel(fa, fb) => fa->show ++ fb->show
+    | Rel(list{}) => "."
+    | Rel(fs) => fs->Belt.List.map(f => f->show)->ListExtensions.join
     | Val(c) => c->Const.show
     | SeqRE(reSign, forms) => `{${reSign->UCalc.REsign.show} ${forms->showSeq}}`
     | FUncl(lbl) => "/" ++ lbl ++ "/"
     }
   and showSeq = (seq: seq) =>
-    switch seq {
-    | list{}  => ""
-    | list{f} => f->show
-    | list{f, ...seq'} => f->show ++ "," ++ seq'->showSeq
-    }
+    seq->Belt.List.map(f => f->show)->ListExtensions.joinWith(",")
 
   let rec reduce = (reducerFn, init, form) => {
     let acc = reducerFn(init, form)
     switch form {
-    | Mark(f)     => reduce(reducerFn, acc, f)
-    | Rel(fa, fb) => [fa, fb]->Js.Array2.reduce(reduce(reducerFn), acc)
+    | Mark(f) => reduce(reducerFn, acc, f)
+    | Rel(fs) => fs->Belt.List.reduce(acc, reduce(reducerFn))
     | _ => acc
     }
   }
@@ -48,11 +63,11 @@ module FORM = {
 
   let rec eval = (expr: t): Const.t =>
     switch expr {
-    | Empty => N
-    | Mark(Empty) => M
+    | Rel(list{}) => N
+    | Mark(Rel(list{})) => M
 
     | Mark(f) => Const.inv(eval(f))
-    | Rel(fa, fb) => Const.rel(eval(fa), eval(fb))
+    | Rel(fs) => fs->Belt.List.reduce(Const.N, (val,f) => Const.rel(val, eval(f)))
     | Val(c) => c
 
     | SeqRE(reSign, forms) => UCalc.calc(reSign, forms->nestedEval)
@@ -144,7 +159,7 @@ module Sequence = {
 
   let rec eval = (seq: t): Const.t =>
     switch seq {
-    | list{}  => FORM.eval(FORM.Empty)
+    | list{}  => FORM.eval(FORM.none)
     | list{f} => FORM.eval(f)
     | list{f, ...fs} => Const.rel(FORM.eval(f), Const.inv(fs->eval))
     }
@@ -152,9 +167,9 @@ module Sequence = {
   let rec toFORMt = (seq: t): FORM.t => {
     open FORM
     switch seq {
-    | list{}  => Empty
+    | list{}  => none
     | list{f} => f
-    | list{f, ...fs} => Rel(f, Mark(fs->toFORMt))
+    | list{f, ...fs} => Rel(list{f, Mark(fs->toFORMt)})
     }
   }
 

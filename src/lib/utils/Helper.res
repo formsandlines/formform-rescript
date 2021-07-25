@@ -9,6 +9,47 @@ module Parity = {
 
 }
 
+module ListExtensions = {
+  /**
+   * Prepends Element before each element of a list
+   */
+  let rec prependToAll = (l: list<'a>, sep: 'a): list<'a> =>
+    switch l {
+    | list{} => list{}
+    | list{x, ...xs} => list{sep, x, ...(xs->prependToAll(sep))}
+    }
+
+  /**
+   * Inserts Element between Elements of a list
+   */
+  let intersperse = (l: list<'a>, sep: 'a): list<'a> =>
+    switch l {
+    | list{} => list{}
+    | list{x, ...xs} => list{x, ...(xs->prependToAll(sep))}
+    }
+
+  /**
+   * Inserts list between lists
+   */
+  let intercalate = (l1: list<list<'a>>, l2: list<'a>): list<'a> =>
+    Belt.List.flatten(l1->intersperse(l2))
+
+  /**
+   * Joins strings in a list to a single string
+   */
+  let rec join = (l: list<string>): string =>
+    switch l {
+    | list{} => ""
+    | list{x, ...xs} => x ++ xs->join
+    }
+
+  /**
+   * Joins strings in a list to a single string with seperator in between
+   */
+  let joinWith = (l: list<string>, sep: string): string =>
+    l->intersperse(sep)->join
+}
+
 module ListMonads = {
   /**
    * Monadic operation (>>=) on lists like in Haskell
