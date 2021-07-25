@@ -8,12 +8,17 @@ module VPoint = {
   // Coordinate/arrow in a [Const] value space
   type t = list<Const.t>
 
-  let show = (vp: t): string => "["++vp->Belt.List.reduce("", (str, c) =>
-      `${str}${(str->Js.String2.length > 0) ? "," : ""}${c->Const.show}`
-    )++"]"
+  // let show = (vp: t): string => "["++vp->Belt.List.reduce("", (str, c) =>
+  //     `${str}${(str->Js.String2.length > 0) ? "," : ""}${c->Const.show}`
+  //   )++"]"
+  let show = (vp: t) =>
+    "["++vp->Belt.List.map(c => c->Const.show)->Belt.List.toArray->Js.Array2.joinWith(",")++"]" // <- without conversion?
+  
+  // let showAsKey = (vp: t) => vp->Belt.List.reduce("", (str, c) =>
+  //     str ++ (c->Const.showAsKey) )
+  let showAsKey = (vp: t) =>
+    vp->Belt.List.map(c => c->Const.showAsKey)->Belt.List.toArray->Js.Array2.joinWith("") // <- without conversion?
 
-  let showAsKey = (vp: t): string => vp->Belt.List.reduce("", (str, c) =>
-      str ++ (c->Const.showAsKey) )
   
   let tFromStr = (~sortNMUI=false, str: string): option<t> => {
     let maybe_vpoint = str
@@ -50,6 +55,13 @@ module VSpace = {
       | None => raise(Not_found)
       }
     })
+  }
+
+  // Might be more inefficient than "make" because of list conversion:
+  let make'__alt = (~sortNMUI=false, dim: int): t => {
+
+    let base = sortNMUI ? Const.enum_NMUI : Const.enum
+    base->Helper.ListMonads.cartesProd(dim)->Belt.List.toArray
   }
 
 }
@@ -95,7 +107,8 @@ module FormDNA = {
   }
   
   let raw = (dna: t) =>
-    dna->Js.Array2.reduce((str, c) => str ++ (c->Const.showAsKey), "")
+    dna->Js.Array2.map(c => c->Const.showAsKey)->Js.Array2.joinWith("")
+    // dna->Js.Array2.reduce((str, c) => str ++ (c->Const.showAsKey), "")
 
   let fromVSpace = (vspc: VSpace.t, map: (VPoint.t => Const.t)): t =>
     vspc->Js.Array2.map(map)

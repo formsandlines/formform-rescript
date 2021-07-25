@@ -66,10 +66,10 @@ module Const = {
     }
   }
 
-  let enum: array<t> = [N,U,I,M]
-  let enum_NMUI: array<t> = [N,M,U,I]
-  let enumNM: array<t> = [N,M]
-  let enumUI: array<t> = [U,I]
+  let enum: list<t> = list{N,U,I,M}
+  let enum_NMUI: list<t> = list{N,M,U,I}
+  let enumNM: list<t> = list{N,M}
+  let enumUI: list<t> = list{U,I}
 
 
   // ----------------------------------------------------

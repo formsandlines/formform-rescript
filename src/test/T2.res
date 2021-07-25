@@ -45,7 +45,7 @@ open Calc
     let ff_intpr = FORMula.interpret(ff, intpr)
 
     Js.log2("Test vpoint: ", intpr->Interpr.toVPoint)
-    Js.log3("Test interpr: ", intpr, switch (list{U,M}->Interpretation.fromVPoint(["a","b"])) {
+    Js.log3("Test interpr: ", intpr, switch (list{U,M}->Interpr.fromVPoint(["a","b"])) {
     | Some(interpr) => interpr
     | None => raise(Not_found)
     })
@@ -79,18 +79,19 @@ open Calc
 
   Js.log(f->FORMula.show)
 
-  let result = f->FORMula.evalAll->FORMula.show(~sortNMUI=false)
-  Js.log2("Result: ", result)
+  let result = f->FORMula.evalAll
+  Js.log2("Result: ", result->FORMula.showFDna(~sortNMUI=false))
 
+  Js.log3(result.dna, result.form, result.vars)
 }
 
 {
   open Code
 
-  let vspc = VSpace.make(3)
+  let vspc = VSpace.make(2)
   let dna = vspc->FormDNA.fromVSpace((vp) =>
     switch vp {
-    | list{a,b,c} => Const.rel(a,Const.rel(b,c))
+    | list{a,b} => Const.rel(a,b)
     | _ => N
     })
   Js.log2(vspc,dna->FormDNA.show)

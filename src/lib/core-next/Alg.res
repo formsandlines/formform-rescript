@@ -38,11 +38,12 @@ module FORMula = {
     | FUncl(string)
 
     | FVar(string)
-    | FDna({                 // [Dna] expression
-        dna: FormDNA.t,
-        form: option<t>,
-        vars: option<array<string>>
-      })
+    | FDna(fdna)
+  and fdna = { // [FDna] expression
+      dna: FormDNA.t,
+      form: option<t>,
+      vars: option<array<string>>
+    }
 
   let rec show = (~sortNMUI=false, formula: t): string =>
     switch formula {
@@ -64,20 +65,21 @@ module FORMula = {
       }
     | FUncl(lbl) => "/" ++ lbl ++ "/"
     | FVar(lbl) => lbl
-    | FDna({dna, form, vars}) => {
-        let formStr = switch form {
-        | Some(f) => switch vars {
-          | Some(vars) => {
-            let varsStr = vars->Js.Array2.reducei((s,v,i) => s++(i > 0 ? "," : "")++v,"")
-            `${f->show(~sortNMUI=sortNMUI)}.[${varsStr}]`
-            }
-          | None => f->show(~sortNMUI=sortNMUI)
-          }
-        | None => ""
-        }
-        formStr ++ dna->FormDNA.show(~sortNMUI=sortNMUI)
-      }
+    | FDna(fDna) => fDna->showFDna(~sortNMUI=sortNMUI)
     }
+  and showFDna = (~sortNMUI=false, {dna, form, vars}: fdna): string => {
+    let formStr = switch form {
+    | Some(f) => switch vars {
+      | Some(vars) => {
+        let varsStr = vars->Js.Array2.joinWith(",") // Js.Array2.reducei((s,v,i) => s++(i > 0 ? "," : "")++v,"")
+        `${f->show(~sortNMUI=sortNMUI)}.[${varsStr}]`
+        }
+      | None => f->show(~sortNMUI=sortNMUI)
+      }
+    | None => ""
+    }
+    formStr ++ dna->FormDNA.show(~sortNMUI=sortNMUI)
+  }
 
   let rec fromExpr = (expr: FORM.t): t =>
     switch expr {
@@ -96,7 +98,7 @@ module FORMula = {
     | Rel(fa, fb) => FORM.Rel(interpret(fa, intpr), interpret(fb, intpr))
     | Val(c) => FORM.Val(c)
     | SeqRE(reSign, forms) => {
-        let forms_interpr = forms->Belt.List.map(f => interpret(f, intpr))
+        let forms_interpr: Sequence.t = forms->Belt.List.map(f => interpret(f, intpr))
         FORM.SeqRE(reSign, forms_interpr)
       }
     | FUncl(lbl) => FORM.FUncl(lbl)
@@ -141,12 +143,12 @@ module FORMula = {
       | _ => vars
       }
     }
-    let vars = reduce(_getVars, Belt.Set.make(~id=module(VarCmp)), formula)
+    let vars = formula |> reduce(_getVars, Belt.Set.make(~id=module(VarCmp)))
     vars->Belt.Set.toArray
   }
 
 
-  let evalAll = (formula: t): t => {
+  let evalAll = (formula: t): fdna => {
     let vars = formula->getVars
     let vnum = vars->Js.Array2.length
     let vspace = vnum->VSpace.make
@@ -158,7 +160,7 @@ module FORMula = {
       }
     })->Js.Array2.reverseInPlace // <- ! inefficient
 
-    FDna({ dna: fdna, form: Some(formula), vars: Some(vars) })
+    { dna: fdna, form: Some(formula), vars: Some(vars) }
   }
 
     // let val_num = Js.Math.floor_int(4.0 ** vnum->Belt.Int.toFloat)
@@ -247,6 +249,13 @@ module Isolator = {
   }
 
 }
+
+
+// module History = {
+//   type t = {sequence: Sequence, context: FORMula}
+
+// }
+
 
 // module Polynomial = {
   
