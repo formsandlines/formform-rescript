@@ -68,22 +68,93 @@ module DepthTree = {
   */
 
   type rec t =
+    | Branch({
+        index: tIndex,
+        form:  FORM.t,
+        children: array<t>
+      })
     | Leaf({
-      depth: int,
-      order: int,
-      form: FORM.t
-    })
-    | Branch({ // Mark(...)
-      depth: int,
-      height: int,
-      order: int,
+        index: tIndex,
+        form:  FORM.t
+      })
+  and tRoot = {
+      form:  FORM.t,
       children: array<t>
-    })
-    | Root({ // <...>
-      height: int,
-      children: array<t>
-    })
+    }
+  and tIndex = array<int>
+
+
+  let showIndex = (index: tIndex) => index->Js.Array2.joinWith("")
+
+  let rec showSubtree = (subtree: t) =>
+    switch subtree {
+    | Branch({index, form, children}) => `{ index: ${index->showIndex}, form: '${form->FORM.show}',
+      children: [${children->Js.Array2.map(sub => sub->showSubtree)->Js.Array2.joinWith(", ")}] }`
+    | Leaf({index, form}) => `{ index: ${index->showIndex}, form: '${form->FORM.show}' }`
+    }
+
+  let show = ({form, children}: tRoot) =>
+    `{ root, form: '${form->FORM.show}', children: [${children->Js.Array2.map(sub => sub->showSubtree)->Js.Array2.joinWith(", ")}] }`
+    
+
+  let rec parseSubtree = (form: FORM.t, index: tIndex): t =>
+    switch form {
+    | Rel([]) => Leaf({index: index, form: form})
+    | Rel(fs) => Branch({index: index, form: form, children: fs
+                  ->Js.Array2.filter(f => f != Rel([]))
+                  ->Js.Array2.mapi((f,i) => f->parseSubtree(index->Js.Array2.concat([i])))})
+    | Mark(f) => Branch({index: index, form: form,
+                  children: f != Rel([]) ? [f->parseSubtree(index->Js.Array2.concat([0]))] : [] })
+    | _       => Leaf({index: index, form: form})
+    }
+
+  let parse = (form: FORM.t): tRoot => {
+    let _root = switch form {
+    | Rel([]) => []
+    | Rel(fs) => fs
+    | Mark(f) => [f]
+    | _ => []
+    }
+    if _root != [] {
+      {form: form,
+       children: _root->Js.Array2.mapi((f,i) => f->parseSubtree([i]))}
+    } else {
+      {form: form, children: []}
+    }
+  }
+
+  // x
+
+
+/*
+
+.    -> root{ch: []}
+()   -> root{ch: [Branch([0], f: Mark(none), ch: [])]}
+(()) -> root{ch: Branch([0], f: Mark(Mark(none)),
+          ch: [Branch([0,0], f: Mark(none), ch: []))] }
+a()  -> root{ch: [Leaf([0], f: Var("a")), Branch([1], f: Mark(none), ch: [])]}
+
+*/
+
+
+  // type rec t =
+  //   | Leaf({
+  //     depth: int,
+  //     order: int,
+  //     form: FORM.t
+  //   })
+  //   | Branch({ // Mark(...)
+  //     depth: int,
+  //     height: int,
+  //     order: int,
+  //     children: array<t>
+  //   })
+  //   | Root({ // <...>
+  //     height: int,
+  //     children: array<t>
+  //   })
   
+
   // let generate = (form: FORM.t): t => {
 
   //   let rec parse = (~depth=1, ~height=-99, ~order=0, form) => switch form {
