@@ -1,95 +1,82 @@
 open Calc
 
-open Expr_
-open Alg_
-
 open Expr
 open Alg
 
-{
-  open FORM_
-
-  let f: t = [
-      Mark([ 
-        Mark([ 
-          Val(U), 
-          Mark([ 
-            SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, 
-              list{
-                [ Mark([ Val(I) ]) ],
-                [ FUncl("Hey"), Val(M) ]
-              }) 
-          ]) 
-        ]) 
-      ]),
-      Val(M)
-    ]
-
-  Js.log2(f->show, f->eval)
-
-  let cnt: content = Mark([Val(U)])
-
-  Js.log2(cnt->show'content, cnt->eval'content)
-
-  Js.log2("FORMula: ", f->Alg_.FORMula_.fromExpr->Alg_.FORMula_.show)
-}
+// open Alg
 
 {
   open FORM
 
-  let f: t = Rel([
-      Mark( 
-        Mark(
-          Rel([ 
-            Val(U), 
-            Mark(
-              SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, 
-                list{
-                  Mark(Val(I)),
-                  Rel([ FUncl("Hey"), Val(M) ])
-                }) 
-            ) 
-          ])
-        ) 
-      ),
+  let f = Ctx([
+      Mark(Ctx([ 
+        Mark(Ctx([ 
+          Val(U), 
+          Mark(Ctx([ 
+            SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, 
+              list{
+                Ctx([ Mark(Ctx([ Val(I) ])) ]),
+                Ctx([ FUncl("Hey"), Val(M) ])
+              }) 
+          ])) 
+        ])) 
+      ])),
       Val(M)
     ])
 
   Js.log2(f->show, f->eval)
 
+  let fn = (str, f) => {
+    str ++ " " ++ switch f {
+    | Mark(_) => "Mark"
+    | SeqRE(_,_) => "SeqRE"
+    | Val(c) => c->Const.show
+    | FUncl(s) => s
+    // | Ctx(cnts) => "Test"
+    }
+  }
+
+  Js.log(f |> reduce(fn, "Start"))
+
+  let cnt = Mark(Ctx([Val(U)]))
+
+  Js.log2(cnt->show, cnt->eval)
+
+  Js.log2("FORMula: ", f->FORMula.fromExpr->FORMula.show)
 }
 
 
 {
-  open FORMula_
+  open FORMula
 
-  let f: t = [
-      Mark([ 
-        Mark([ 
+  let f = Ctx([
+      Mark(Ctx([ 
+        Mark(Ctx([ 
           FVar("a"), 
-          Mark([ 
+          Mark(Ctx([ 
             SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, 
               list{
-                [ Mark([ FVar("b") ]) ],
-                [ FUncl("Hey"), Val(M) ]
+                Ctx([ Mark(Ctx([ FVar("b") ])) ]),
+                Ctx([ FUncl("Hey"), Val(M) ])
               }) 
-          ]) 
-        ]) 
-      ]),
-      FDna({dna: [N,M,U,I], form: Some([Mark([FVar("a")]),Val(M)]), vars: Some(["a"])})
-    ]
+          ])) 
+        ])) 
+      ])),
+      FDna({dna: [N,M,U,I], form: Some(Ctx([Mark(Ctx([FVar("a")])),Val(M)])), vars: Some(["a"])})
+    ])
 
-  Js.log(f->show)
-
-  // Js.log(f->getVars)
-  Js.log(([FVar("a"),Mark([Val(U),Mark([FVar("c")]),FVar("b")])])->getVars)
+  Js.log2(f->show, f->evalAll->showFdna)
 
   let expr = f->interpret(Js.Dict.fromArray([("a",Const.U),("b",Const.I)]))
 
-  Js.log(expr->FORM_.show)
+  Js.log(expr->FORM.show)
 
-  // let cnt: content = Mark([Val(U)])
 
-  // Js.log2(cnt->show'content)
+  Js.log(f->getVars)
+  Js.log((Ctx([FVar("a"),Mark(Ctx([Val(U),Mark(Ctx([FVar("c")])),FVar("b")]))]))->getVars)
+
+  let cnt = Mark(Ctx([Val(U)]))
+
+  Js.log(cnt->show)
 
 }

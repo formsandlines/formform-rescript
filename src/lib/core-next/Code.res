@@ -1,5 +1,10 @@
 open Calc
 
+module Form = {
+  type content = Content
+  type context = Context
+}
+
 module VPoint = {
   // ===================================================================
   // [VPoint]: value point -> [Const] coordinate/list in a [VSpace]

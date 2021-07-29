@@ -8,14 +8,14 @@ Js.log( result )
 Js.log( result->Const.show )
 
 
-let form = FORM.Mark( Rel([ Val(U), FUncl("Welt") ]) )
+let form = FORM.Mark( Ctx([ Val(U), FUncl("Welt") ]) )
 
 Js.log( form->FORM.show )
 
 let seqRe = FORM.SeqRE({reEntryPar: Odd, unmarked: false, interpr: RecInstr},
-  list{Mark(Mark(FORM.none)), form})
+  list{Ctx([ Mark(Ctx([ Mark( FORM.none ) ])) ]), Ctx([ form ])})
 
-Js.log( FORM.Mark(Rel([ seqRe, Mark(FORM.none) ]))->FORM.show )
+Js.log( FORM.Mark(Ctx([ seqRe, Mark(FORM.none) ]))->FORM.show )
 
 // let fdna = FORM.FDna({
 //   dna: [M,N,U,I],
@@ -25,8 +25,8 @@ Js.log( FORM.Mark(Rel([ seqRe, Mark(FORM.none) ]))->FORM.show )
 
 // Js.log( fdna->FORM.show )
 
-let rec uFORM = FORM.Mark( Mark(uFORM) )
-let iFORM = FORM.Mark( uFORM )
+let rec uFORM = FORM.Mark(Ctx([ Mark(Ctx([ uFORM ])) ]))
+let iFORM = FORM.Mark(Ctx([ uFORM ]))
 
 Js.log( uFORM ) // <- marked as Circular
 Js.log( iFORM ) // <- marked as Circular
@@ -38,7 +38,11 @@ Js.log( iFORM ) // <- marked as Circular
 
 {
   open FORM
-  let form' = FORM.Rel([ Mark(Mark(none)), Mark(Mark(none)), Mark(Mark(none)) ])
+  let form' = FORM.Ctx([
+    Mark(Ctx([ Mark( none ) ])),
+    Mark(Ctx([ Mark( none ) ])),
+    Mark(Ctx([ Mark( none ) ]))
+    ])
 
   Js.log( FORM.show(form') )
   Js.log( FORM.eval(form') )

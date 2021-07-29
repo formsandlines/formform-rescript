@@ -15,10 +15,10 @@ open Calc
 {
   open Expr
 
-  // let f = FORM.Mark(Rel(Rel(Empty,Val(U)), SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{Val(I),Mark(Val(U))})))
-  let f = FORM.Mark(Rel([ Val(I), Val(U) ]))
+  // let f = FORM.Mark(Ctx(Ctx(Empty,Val(U)), SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{Val(I),Mark(Val(U))})))
+  let f = FORM.Mark(Ctx([ Val(I), Val(U) ]))
 
-  let f' = FORM.Mark(Mark(Val(M)))
+  let f' = FORM.Mark(Ctx([ Mark(Ctx([ Val(M) ])) ]))
   
   Js.log2(
     f->FORM.show,
@@ -37,9 +37,9 @@ open Calc
     Js.log2(ex->FORMula.show, ex'->FORMula.show)
     // Js.log(FORMula.equiv(ex, ex'))
 
-    let ff = FORMula.Rel([ Mark(Rel([ FVar("a"),Mark(FVar("b")) ])),FVar("a") ])
+    let ff = FORMula.Ctx([ Mark(Ctx([ FVar("a"),Mark(Ctx([ FVar("b") ])) ])),FVar("a") ])
 
-    // let ff'' = FORMula.Mark(Rel(Mark(Rel(FVar("a"),Mark(Rel(FVar("b"),Val(M))))), Mark(Rel(Mark(FVar("c")),FVar("d")))))
+    // let ff'' = FORMula.Mark(Ctx(Mark(Ctx(FVar("a"),Mark(Ctx(FVar("b"),Val(M))))), Mark(Ctx(Mark(FVar("c")),FVar("d")))))
 
     let intpr = Js.Dict.fromArray([("a",Const.U),("b",Const.M)])
     let ff_intpr = FORMula.interpret(ff, intpr)
@@ -58,8 +58,8 @@ open Calc
 
   {
     open Alg
-    let ff = FORMula.Mark(Mark(Rel([ Mark(FVar("a")),FVar("b") ])))
-    // let ff = FORMula.Rel(Mark(Mark(Val(U))), Val(I))
+    let ff = FORMula.Ctx([ Mark(Ctx([ Mark(Ctx([ Mark(Ctx([ FVar("a") ])),FVar("b") ])) ])) ])
+    // let ff = FORMula.Ctx(Mark(Mark(Val(U))), Val(I))
 
     let ff' = ff->Pattern.Equiv.applyR(PrimAlg.refl)
     let ff'' = ff'->Pattern.Equiv.applyL(PrimAlg.refl)
@@ -73,14 +73,14 @@ open Calc
 {
   open Alg
 
-  let f = FORMula.Rel([ Mark(Rel([ FVar("a"),FVar("c") ])),FVar("b") ])
+  let f = FORMula.Ctx([ Mark(Ctx([ FVar("a"),FVar("c") ])),FVar("b") ])
   // let f = FORMula.FVar("a")
-  // let f = FORMula.Rel(FVar("a"),FVar("b"))
+  // let f = FORMula.Ctx(FVar("a"),FVar("b"))
 
   Js.log(f->FORMula.show)
 
   let result = f->FORMula.evalAll
-  Js.log2("Result: ", result->FORMula.showFDna(~sortNMUI=false))
+  Js.log2("Result: ", result->FORMula.showFdna(~sortNMUI=false))
 
   Js.log3(result.dna, result.form, result.vars)
 }
@@ -102,6 +102,6 @@ open Calc
 }
 
 
-// let rec reentry = Expr.FORM.Mark(Rel(Val(N),reentry))
+// let rec reentry = Expr.FORM.Mark(Ctx(Val(N),reentry))
 
 // Js.log(reentry->Expr.FORM.show)
