@@ -1,13 +1,13 @@
-module Parity = {
-  type t = Even | Odd | Any
 
-  let show = (parity: t) => switch parity {
-  | Even => "2r"
-  | Odd  => "2r+1"
-  | Any  => ""
-  }
+exception Unreachable // this exception should never be thrown if I’ve done my job correctly
 
+let cleanStr = (str) => {
+  // if (str has `"`, "/", `\`, etc.) { maybe purge chars or return None }
+  str
 }
+
+let hasDecimal = (x) => Belt.Float.fromInt(Belt.Float.toInt(x)) < x
+
 
 module ListExtensions = {
   /**
@@ -51,10 +51,12 @@ module ListExtensions = {
 }
 
 module ListMonads = {
+  type t<'a> = list<'a>
+
   /**
    * Monadic operation (>>=) on lists like in Haskell
    */
-  let rec fmap = (l: list<'a>, fn: (('a) => list<'b>)): list<'b> => {
+  let rec fmap = (l: t<'a>, fn: (('a) => t<'b>)): t<'b> => {
     switch l {
     | list{} => list{}
     | list{x, ...xs} => Belt.List.concat(x->fn, xs->fmap(fn))
@@ -62,10 +64,16 @@ module ListMonads = {
   }
 
   /**
+   * Like liftM2 from Haskell’s Control.Monad.liftM2
+   */
+  let liftM2 = (mf2: ('a => 'b => 'c), ma: t<'a>, mb: t<'b>): t<'c> =>
+    ma->fmap((x1) => mb->fmap((x2) => list{mf2(x1, x2)}))
+
+  /**
    * Cartesian product for lists (like list-comprehension in Haskell)
    */
-  let cartesProd = (l: list<'a>, dim: int) => {
-    let rec fn = (l: list<'a>, seq: list<'a>, n: int): list<'b> => {
+  let cartesProd = (l: t<'a>, dim: int) => {
+    let rec fn = (l: t<'a>, seq: t<'a>, n: int): t<'b> => {
       if n > 0 {
         fmap(l, (x => fn(l, seq->Belt.List.concat(list{x}), n-1 )))
       } else {
@@ -74,6 +82,7 @@ module ListMonads = {
     }
     l->fn(list{}, dim)
   }
+
 }
 
 let common_vars = "abcdefghijklmnopqrstuvwxyz"->Js.String2.split("")

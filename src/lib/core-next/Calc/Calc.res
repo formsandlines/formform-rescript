@@ -41,35 +41,40 @@ module Const = {
   }
 
   /**
-   * Output [Const] from index in NMUI ordering (used by uFORM iFORM)
+   * Outputs [Const] from int index
+   * with optional NMUI interpretation/ordering (used by uFORM iFORM)
    */
-  let fromInt = (~sortNMUI=false, n: int): option<t> => {
+  let fromInt = (~sortNMUI=false, n: int) => {
     let _c = tFromJs(n)
-    switch _c {
-    | Some(U) => sortNMUI ? Some(M) : _c
-    | Some(I) => sortNMUI ? Some(U) : _c
-    | Some(M) => sortNMUI ? Some(I) : _c
-    | _       => _c
+    if (sortNMUI) {
+      switch _c {
+      | Some(U) => Some(M)
+      | Some(I) => Some(U)
+      | Some(M) => Some(I)
+      | _       => _c
+      }
+    } else {
+      _c
     }
   }
 
   /**
-   * Output [Const] from index in NMUI ordering (used by uFORM iFORM)
+   * Outputs [Const] from corresponding string
    */
-  let tFromStr = (str: string): option<t> => {
+  let tFromStr = (str) => {
     switch str {
-    | "N" | "n" | "." | "" => Some(N)
-    | "U" | "u" | "mn"     => Some(U)
-    | "I" | "i" | "(mn)"   => Some(I)
-    | "M" | "m" | "()"     => Some(M)
+    | "N" | "n" | "." | "(())" | "" => Some(N)
+    | "U" | "u" | "mn"   => Some(U)
+    | "I" | "i" | "(mn)" => Some(I)
+    | "M" | "m" | "()"   => Some(M)
     | _ => None
     }
   }
 
-  let enum: list<t> = list{N,U,I,M}
-  let enum_NMUI: list<t> = list{N,M,U,I}
-  let enumNM: list<t> = list{N,M}
-  let enumUI: list<t> = list{U,I}
+  let enum = list{N,U,I,M}
+  let enum_NMUI = list{N,M,U,I}
+  let enumNM = list{N,M}
+  let enumUI = list{U,I}
 
 
   // ----------------------------------------------------
@@ -109,7 +114,7 @@ module Nested = {
 
   /*
    * Each item represents a marked space that contains its value and its <linked item>
-   * The empty list is assumed to be equivalent to N
+   * The empty list is assumed to be equivalent to M  // was N
    * Nested Constants are closed (marked) by default for consistency
    * 
    * [#NestToL]: left-associative nesting (outward) -> list{a,b,c,…} := ((((a)b)c)…)
@@ -119,21 +124,24 @@ module Nested = {
    */
   type t = [#NestToL(list<Const.t>) | #NestToR(list<Const.t>)]
 
-  let show = (nest): string =>
+  let show = (nest) =>
     switch nest {
-    | #NestToL(list{}) => Const.N->Const.show
+    | #NestToL(list{}) => Const.M->Const.show // * changed from N
     | #NestToL(clist) => "("++clist->Belt.List.reduce("", (str, c) =>
         `${(str->Js.String2.length > 0) ? `(${str})` : ""}${c->Const.show}`
       )++")"
-    | #NestToR(list{}) => Const.N->Const.show
+    | #NestToR(list{}) => Const.M->Const.show // * changed from N
     | #NestToR(clist) => "("++clist->Belt.List.reduceReverse("", (str, c) =>
         `${c->Const.show}${(str->Js.String2.length > 0) ? `(${str})` : ""}`
       )++")"
     }
 
+  /** Gets list from [#NestToL]/[#NestToL] wrapper */
   let getList = (nest: t): list<Const.t> => switch nest {
     | #NestToL(clist) | #NestToR(clist) => clist
     }
+  
+  /** Applies given function to [Nested] list */
   let fmapL = (#NestToL(l), fn: (list<Const.t> => list<Const.t>)) => {
     #NestToL(l->fn)
   }
@@ -216,13 +224,13 @@ module Nested = {
     }
   let calcL = (#NestToL(clist)): Const.t => {
     switch clist {
-    | list{} => N
+    | list{} => M // * changed from N
     | _ => Const.inv(clist->Js.List.rev->_calc)
     }
   }
   let calcR = (#NestToR(clist)): Const.t => {
     switch clist {
-    | list{} => N
+    | list{} => M // * changed from N
     | _ => Const.inv(clist->_calc)
     }
   }

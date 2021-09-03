@@ -1,71 +1,23 @@
+open Sign
 open Calc
-
-module F = {
-  type t = UFORM | IFORM
-
-  let show = (reType: t): string => {
-    switch reType {
-    | UFORM => "uFORM"
-    | IFORM => "iFORM"
-    }
-  }
-}
-
-module REsign = {
-  open Helper
-  // ----------------------------------------------------
-  // [REsign]: ReEntry signature -> instruction on how to
-  //   recursively construct the ReEntry structure and
-  //   how to interpret its undetermined value
-  // ----------------------------------------------------
-
-  // Interpretation alternatives for MN in re-entry FORMs
-  // -> See uFORM iFORM, p. 136
-  type mn = RecInstr | RecIdent // default is RecInstr
-
-  type t = {reEntryPar: Parity.t, unmarked: bool, interpr: mn}
-
-  let show = ({reEntryPar, unmarked, interpr}: t): string => {
-    let (reDots, preDot) = switch reEntryPar {
-    | Even => ("..","")
-    | Odd  => ("..",".")
-    | Any  => ("","")
-    }
-    let reMark = switch interpr {
-    | RecInstr => "@"
-    | RecIdent => "@'"
-    }
-    `${unmarked ? "_" : ""}${preDot}${reMark}${reDots}` // <- nest to right
-    // `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}`
-  }
-
-  let getReType = ({reEntryPar, unmarked, _}: t, resPar: Parity.t): F.t =>
-    switch (resPar, reEntryPar) {
-    | (Even, _)   => unmarked ? IFORM : UFORM
-    | (Odd, Even) => UFORM
-    | (Odd, Odd)  => IFORM
-    | (_, _)      => IFORM // default (“Any”) re-entry parity for odd resolution is always odd
-    }
-}
-
-exception Unreachable // this exception should never be thrown if I’ve done my job correctly
 
 /**
  * FORM arithmetic for different self-equivalent re-entry FORMs
  *
  * * Note: the left-to-right nesting of values is contrary to convention in uFORM iFORM
  */
-let calc = ({reEntryPar, unmarked, interpr}: REsign.t, 
+let calc = ({reEntryPar, unmarked, interpr}: SeqRE.sig, 
              #NestToR(nestedC: list<Const.t>)): Const.t => {
-  open Helper
 
-  let resPar: Parity.t = mod(nestedC->Js.List.length,2) == 0 ? Even : Odd
+  // ? maybe there is a better way to handle empty list cases to avoid the additional query
+
+  let resPar: Parity.t = nestedC == list{} || mod(nestedC->Js.List.length,2) != 0 ? Odd : Even
 
   // determine if uFORM or iFORM and modify nested [const] list accordingly
-  let reType: F.t = REsign.getReType({reEntryPar, unmarked, interpr}, resPar)
+  let reType: SeqRE.uType = SeqRE.getUType({reEntryPar, unmarked, interpr}, resPar)
 
   // Js.log("--- Debug --->")
-  if (nestedC->Belt.List.every(c => c == N)) {
+  if (nestedC == list{} || nestedC->Belt.List.every(c => c == N)) {
     // [3] if all variables are N, the result depends on the shape of the FORM
     // Js.log("All N case")
     // Js.log(nestedC)
@@ -124,7 +76,7 @@ let calc = ({reEntryPar, unmarked, interpr}: REsign.t,
         switch (nestedC, reType) {
         | (list{_,c, ..._}, UFORM) => Const.rel(U,c)
         | (list{_,c, ..._}, IFORM) => Const.rel(I,c)
-        | _ => raise(Unreachable)
+        | _ => raise(Helper.Unreachable)
         }
 
       } else if (interpr == RecIdent) && unmarked && (bottom_c != Some(N)) {
@@ -143,7 +95,7 @@ let calc = ({reEntryPar, unmarked, interpr}: REsign.t,
         switch (bottom_c, reType) { // ?? can we avoid the code repetition?
         | (Some(c), UFORM) => Const.rel(U,c)
         | (Some(c), IFORM) => Const.rel(I,c)
-        | _ => raise(Unreachable)
+        | _ => raise(Helper.Unreachable)
         }
 
       } else {
@@ -169,7 +121,7 @@ let calc = ({reEntryPar, unmarked, interpr}: REsign.t,
           | list{N,U,N} | list{N,I,N} => reEntryPar == Even ? I : U
           | list{U,N}   | list{I,N}   => U
           | list{U}     | list{I}     => reEntryPar == Even ? U : I
-          | _ => raise(Unreachable)
+          | _ => raise(Helper.Unreachable)
           }
         } else {
           // in the Odd re-entry case (even resolution), mn is (mn)!
@@ -178,7 +130,7 @@ let calc = ({reEntryPar, unmarked, interpr}: REsign.t,
           | list{N,U,N} | list{N,I,N} => reEntryPar == Even ? U : I // U/I swapped
           | list{U,N}   | list{I,N}   => U // same
           | list{U}     | list{I}     => reEntryPar == Even ? I : U // U/I swapped
-          | _ => raise(Unreachable)
+          | _ => raise(Helper.Unreachable)
           }
         }
       }

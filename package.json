@@ -29,10 +29,11 @@
         "not IE 11",
         "not IE_Mob 11"
     ],
+    "type": "module",
     "main": "dist/formform.js",
     "unpkg": "dist/formform.min.js",
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
+        "test": "onchange --initial '{tests,src}/*.bs.js' -- pta 'tests/*.test.bs.js'",
         "dev": "webpack --config webpack.dev.js",
         "build": "webpack --config webpack.prod.js",
         "lint": "eslint './src/**'",
@@ -44,8 +45,11 @@
         "formsandlines-utils": "^0.1.1"
     },
     "devDependencies": {
+        "@dusty-phillips/rescript-zora": "^2.0.0",
         "eslint": "^7.29.0",
         "eslint-plugin-compat": "^3.9.0",
+        "onchange": "^7.1.0",
+        "pta": "^1.0.0",
         "rescript": "^9.1.4",
         "webpack": "^5.39.1",
         "webpack-cli": "^4.7.2"
