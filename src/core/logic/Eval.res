@@ -1,4 +1,3 @@
-open Sign.Value
 open Calc
 open Expr
 open Value
@@ -68,7 +67,7 @@ let rec evalForm = (form: FORM.t<con>) => switch form {
   | FORM.Mark([])   => M
   | FORM.Mark(expr) => Const.inv(expr->evalExpr)
   | FORM.CVal(c)     => c
-  | FORM.SeqRE(reSign, forms) => UCalc.calc(reSign, forms->nestedEval)
+  | FORM.SeqRE(reSign, forms) => SeqRE.calcRE(reSign, forms->nestedEval)
   | FORM.Uncl(_)   => U
 
   | FORM.FDna(fdna) => N // ! incorrect -> something like fdna->evalFdna

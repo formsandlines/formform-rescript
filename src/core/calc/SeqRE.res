@@ -1,12 +1,58 @@
-open Sign
+open Helper
 open Calc
+
+// ----------------------------------------------------
+// [sig]: ReEntry signature -> instruction on how to
+//   recursively construct the ReEntry structure and
+//   how to interpret its undetermined value
+// ----------------------------------------------------
+
+// Interpretation alternatives for MN in re-entry FORMs
+// -> See uFORM iFORM, p. 136
+type uType = UFORM | IFORM
+type mn = RecInstr | RecIdent // default is RecInstr
+type sig = {reEntryPar: Parity.t, unmarked: bool, interpr: mn}
+
+let showSig = ({reEntryPar, unmarked, interpr}) => {
+  let (reDots, preDot) = switch reEntryPar {
+  | Even => ("..","")
+  | Odd  => ("..",".")
+  | Any  => ("","")
+  }
+  let reMark = switch interpr {
+  | RecInstr => "@"
+  | RecIdent => "@'"
+  }
+  `${unmarked ? "_" : ""}${preDot}${reMark}${reDots}` // <- nest to right
+  // `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}`
+}
+let showMN = (mn) => {
+  switch mn {
+  | RecInstr => "recursive instruction"
+  | RecIdent => "recursive identity"
+  }
+}
+let showUType = (uType) => {
+  switch uType {
+  | UFORM => "uFORM"
+  | IFORM => "iFORM"
+  }
+}
+
+let getUType = ({reEntryPar, unmarked, _}, resPar: Parity.t) =>
+  switch (resPar, reEntryPar) {
+  | (Even, _)   => unmarked ? IFORM : UFORM
+  | (Odd, Even) => UFORM
+  | (Odd, Odd)  => IFORM
+  | (_, _)      => IFORM // default (“Any”) re-entry parity for odd resolution is always odd
+    }
 
 /**
  * FORM arithmetic for different self-equivalent re-entry FORMs
  *
  * * Note: the left-to-right nesting of values is contrary to convention in uFORM iFORM
  */
-let calc = ({reEntryPar, unmarked, interpr}: SeqRE.sig, 
+let calcRE = ({reEntryPar, unmarked, interpr}: sig, 
              #NestToR(nestedC: list<Const.t>)): Const.t => {
 
   // ? maybe there is a better way to handle empty list cases to avoid the additional query
@@ -14,7 +60,7 @@ let calc = ({reEntryPar, unmarked, interpr}: SeqRE.sig,
   let resPar: Parity.t = nestedC == list{} || mod(nestedC->Js.List.length,2) != 0 ? Odd : Even
 
   // determine if uFORM or iFORM and modify nested [const] list accordingly
-  let reType: SeqRE.uType = SeqRE.getUType({reEntryPar, unmarked, interpr}, resPar)
+  let reType: uType = getUType({reEntryPar, unmarked, interpr}, resPar)
 
   // Js.log("--- Debug --->")
   if (nestedC == list{} || nestedC->Belt.List.every(c => c == N)) {

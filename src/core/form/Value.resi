@@ -1,6 +1,5 @@
 open Calc
 
-
 module VPoint: {
 
   type t = list<Const.t>

@@ -1,7 +1,7 @@
 open Calc
-open Sign
-open Sign.Value
 
+type con = Constant
+type var = Variable
 
 module FORM: {
 

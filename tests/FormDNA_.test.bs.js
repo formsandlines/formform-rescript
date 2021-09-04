@@ -2,7 +2,7 @@
 
 import * as Zora from "@dusty-phillips/rescript-zora/src/Zora.bs.js";
 import * as Zora$1 from "zora";
-import * as FormDNA from "../src/lib/core-next/Calc/FormDNA.bs.js";
+import * as FormDNA from "../src/core/calc/FormDNA.bs.js";
 import * as Caml_array from "rescript/lib/es6/caml_array.js";
 
 var dnaV0 = [

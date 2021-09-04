@@ -1,8 +1,8 @@
-open Calc
 open Helper
-open Sign
-open Sign.Value
+open Calc
 
+type con = Constant
+type var = Variable
 
 module FORM = {
   // ===================================================================
@@ -89,8 +89,8 @@ module FCON = {
   let rec reduceForm = (reducerFn, init, form: t) => {
     let acc = reducerFn(init, form)
     switch form {
-    | FORM.Mark(expr) => expr |> reduceExpr(reducerFn, acc)
-    | FORM.SeqRE(_, seq) => seq |> reduceSeq(reducerFn, acc)
+    | FORM.Mark(expr) => expr->reduceExpr(reducerFn, acc, _)
+    | FORM.SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _)
     | _ => acc
     }
   }
@@ -149,8 +149,8 @@ module FVAR = {
   let rec reduceForm = (reducerFn, init, form: t) => {
     let acc = reducerFn(init, form)
     switch form {
-    | FORM.Mark(expr) => expr |> reduceExpr(reducerFn, acc)
-    | FORM.SeqRE(_, seq) => seq |> reduceSeq(reducerFn, acc)
+    | FORM.Mark(expr) => expr->reduceExpr(reducerFn, acc, _) // replaced |>
+    | FORM.SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _) // replaced |>
     | _ => acc
     }
   }
@@ -185,7 +185,7 @@ module FVAR = {
       | _ => vars
       }
     let init = Belt.Set.make(~id=module(VarCmp))
-    let vars = expr |> reduce(_getVars, init)
+    let vars = expr->reduce(_getVars, init, _) // replaced |>
 
     vars->Belt.Set.toArray
   }

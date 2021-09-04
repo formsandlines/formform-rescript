@@ -1,6 +1,7 @@
 open Zora
 
-open Sign
+open Helper
+open SeqRE
 open Calc
 
 // IMPORTANT NOTE: UCalc uses #NestToR and hence nesting order is (a(…(n @))) instead of (((@ a)…)n) !
@@ -8,7 +9,7 @@ open Calc
 type vtuple = (Const.t,Const.t)
 type vtriple = (Const.t,Const.t,Const.t)
 
-type seqREV_sample = {f: string, sign: SeqRE.sig, results: array<Const.t>}
+type seqREV_sample = {f: string, sign: sig, results: array<Const.t>}
 
 let valSpc1: array<Const.t> = [ // NMUI ordering
     N, M, U, I,
@@ -47,52 +48,52 @@ let valSpc3: array<vtriple> = [ // NMUI ordering
 let seqREV1: array<seqREV_sample> = [
   {
     f: `{@ a}`,
-    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: RecInstr},
     results: [ I,N,I,I, ] // ! should be checked manually
   }, {
     f: `{..@ a}`,
-    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: RecInstr},
     results: [ U,N,U,U, ] // ! should be checked manually
   }, {
     f: `{..@. a}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: RecInstr},
     results: [ I,N,I,I, ] // ! should be checked manually
   }, {
     f: `{@_ a}`,
-    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: RecInstr},
     results: [ I,M,U,U, ] // ! should be checked manually
   }, {
     f: `{..@_ a}`,
-    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: RecInstr},
     results: [ U,M,I,I, ] // ! should be checked manually
   }, {
     f: `{..@._ a}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: RecInstr},
     results: [ I,M,U,U, ] // ! should be checked manually
   },
   {
     f: `{alt|@ a}`,
-    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: RecIdent},
     results: [ I,N,I,I, ] // ! should be checked manually
   }, {
     f: `{alt|.@ a}`,
-    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: RecIdent},
     results: [ U,N,U,U, ] // ! should be checked manually
   }, {
     f: `{alt|..@. a}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: RecIdent},
     results: [ I,N,I,I, ] // ! should be checked manually
   }, {
     f: `{alt|@_ a}`,
-    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: RecIdent},
     results: [ I,M,M,I, ] // ! should be checked manually
   }, {
     f: `{alt|..@_ a}`,
-    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: RecIdent},
     results: [ U,M,U,M, ] // ! should be checked manually
   }, {
     f: `{alt|..@._ a}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: RecIdent},
     results: [ I,M,M,I, ] // ! should be checked manually
   }
 ]
@@ -101,7 +102,7 @@ zoraBlock(`Testing UCalc.calc with 1 val`, t => {
 
   seqREV1->Js.Array2.forEach(input => {
     t->block(`given value space for ${input.f}`, t => {
-      let actual = valSpc1->Js.Array2.map((a) => UCalc.calc(input.sign, #NestToR(list{a}) ) )
+      let actual = valSpc1->Js.Array2.map((a) => calcRE(input.sign, #NestToR(list{a}) ) )
 
       let expected = input.results
       t->equal(actual, expected, `should be according to ${input.f} results`)
@@ -116,74 +117,74 @@ zoraBlock(`Testing UCalc.calc with 1 val`, t => {
 let seqREV2: array<seqREV_sample> = [
   {
     f: `{@ a,b}`,
-    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: RecInstr},
     results: [ // ! should be checked manually
       U,N,U,U, M,N,I,U, I,N,U,U, I,N,I,U, 
     ]
   }, {
     f: `{..@ a,b}`,
-    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: RecInstr},
     results: [ // ! should be checked manually
       U,N,U,U, M,N,I,U, I,N,U,U, I,N,I,U, 
     ]
   }, {
     f: `{..@. a,b}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: RecInstr},
     results: [ // ! should be checked manually
       U,N,U,U, M,N,I,U, I,N,U,U, I,N,I,U, 
     ]
   }, {
     f: `{@_ a,b}`,
-    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: RecInstr},
     results: [ // ! should be checked manually
       I,M,U,U, N,M,U,I, I,M,U,I, I,M,U,U, 
     ]
   }, {
     f: `{..@_ a,b}`,
-    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: RecInstr},
     results: [ // ! should be checked manually
       I,M,U,U, N,M,U,I, I,M,U,I, I,M,U,U, 
     ]
   }, {
     f: `{..@._ a,b}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: RecInstr},
     results: [ // ! should be checked manually
       I,M,U,U, N,M,U,I, I,M,U,I, I,M,U,U, 
     ]
   },
   {
     f: `{alt|@ a,b}`,
-    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: RecIdent},
     results: [ // ! should be checked manually
       U,N,U,U, M,N,I,U, U,N,U,U, M,N,I,U, 
     ]
   }, {
     f: `{alt|..@ a,b}`,
-    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: RecIdent},
     results: [ // ! should be checked manually
       U,N,U,U, M,N,I,U, U,N,U,U, M,N,I,U, 
     ]
   }, {
     f: `{alt|..@. a,b}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: RecIdent},
     results: [ // ! should be checked manually
       U,N,U,U, M,N,I,U, U,N,U,U, M,N,I,U, 
     ]
   }, {
     f: `{alt|@_ a,b}`,
-    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: RecIdent},
     results: [ // ! should be checked manually
       I,M,M,I, N,M,U,I, I,M,M,I, I,M,U,I, 
     ]
   }, {
     f: `{alt|..@_ a,b}`,
-    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: RecIdent},
     results: [ // ! should be checked manually
       I,M,M,I, N,M,U,I, I,M,M,I, I,M,U,I, 
     ]
   }, {
     f: `{alt|..@._ a,b}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: RecIdent},
     results: [ // ! should be checked manually
       I,M,M,I, N,M,U,I, I,M,M,I, I,M,U,I, 
     ]
@@ -194,7 +195,7 @@ zoraBlock(`Testing UCalc.calc with 2 vals`, t => {
 
   seqREV2->Js.Array2.forEach(input => {
     t->block(`given value space for ${input.f}`, t => {
-      let actual = valSpc2->Js.Array2.map(((a,b)) => UCalc.calc(input.sign, #NestToR(list{b,a}) ) )
+      let actual = valSpc2->Js.Array2.map(((a,b)) => calcRE(input.sign, #NestToR(list{b,a}) ) )
 
       let expected = input.results
       t->equal(actual, expected, `should be according to ${input.f} results`)
@@ -209,7 +210,7 @@ zoraBlock(`Testing UCalc.calc with 2 vals`, t => {
 let seqREV3: array<seqREV_sample> = [
   {
     f: `{@ a,b,c}`,
-    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: RecInstr},
     results: [ // ! should be checked manually
 I,N,I,I, M,N,I,U, U,N,I,U, U,N,I,I, 
 N,N,N,N, M,N,I,U, U,N,N,U, I,N,I,N, 
@@ -218,7 +219,7 @@ I,N,N,I, M,N,I,U, U,N,N,U, U,N,I,I,
     ]
   }, {
     f: `{..@ a,b,c}`,
-    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: RecInstr},
     results: [ // ! should be checked manually
 U,N,U,U, M,N,I,U, I,N,U,U, I,N,I,U, 
 N,N,N,N, M,N,I,U, U,N,N,U, I,N,I,N, 
@@ -227,7 +228,7 @@ U,N,N,U, M,N,I,U, U,N,N,U, I,N,I,U,
     ]
   }, {
     f: `{..@. a,b,c}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: RecInstr},
     results: [ // ! should be checked manually
 I,N,I,I, M,N,I,U, U,N,I,U, U,N,I,I, 
 N,N,N,N, M,N,I,U, U,N,N,U, I,N,I,N, 
@@ -236,7 +237,7 @@ I,N,N,I, M,N,I,U, U,N,N,U, U,N,I,I,
     ]
   }, {
     f: `{@_ a,b,c}`,
-    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: RecInstr},
     results: [ // ! should be checked manually
 I,M,U,U, N,M,U,I, I,M,U,I, I,M,U,U, 
 M,M,M,M, N,M,U,I, I,M,M,I, U,M,U,M, 
@@ -245,7 +246,7 @@ U,M,M,U, N,M,U,I, I,M,M,I, I,M,U,U,
     ]
   }, {
     f: `{..@_ a,b,c}`,
-    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: RecInstr},
     results: [ // ! should be checked manually
 U,M,I,I, N,M,U,I, U,M,I,I, U,M,U,I, 
 M,M,M,M, N,M,U,I, I,M,M,I, U,M,U,M, 
@@ -254,7 +255,7 @@ I,M,M,I, N,M,U,I, I,M,M,I, U,M,U,I,
     ]
   }, {
     f: `{..@._ a,b,c}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecInstr},
+    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: RecInstr},
     results: [ // ! should be checked manually
 I,M,U,U, N,M,U,I, I,M,U,I, I,M,U,U, 
 M,M,M,M, N,M,U,I, I,M,M,I, U,M,U,M, 
@@ -264,7 +265,7 @@ U,M,M,U, N,M,U,I, I,M,M,I, I,M,U,U,
   },
   {
     f: `{alt|@ a,b,c}`,
-    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Any, unmarked: false, interpr: RecIdent},
     results: [ // ! should be checked manually
 I,N,I,I, M,N,I,U, M,N,I,U, I,N,I,I, 
 N,N,N,N, M,N,I,U, U,N,N,U, I,N,I,N, 
@@ -273,7 +274,7 @@ I,N,N,I, M,N,I,U, U,N,N,U, I,N,I,I,
     ]
   }, {
     f: `{alt|..@ a,b,c}`,
-    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Even, unmarked: false, interpr: RecIdent},
     results: [ // ! should be checked manually
 U,N,U,U, M,N,I,U, U,N,U,U, M,N,I,U, 
 N,N,N,N, M,N,I,U, U,N,N,U, I,N,I,N, 
@@ -282,7 +283,7 @@ U,N,N,U, M,N,I,U, U,N,N,U, M,N,I,U,
     ]
   }, {
     f: `{alt|..@. a,b,c}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Odd, unmarked: false, interpr: RecIdent},
     results: [ // ! should be checked manually
 I,N,I,I, M,N,I,U, M,N,I,U, I,N,I,I, 
 N,N,N,N, M,N,I,U, U,N,N,U, I,N,I,N, 
@@ -291,7 +292,7 @@ I,N,N,I, M,N,I,U, U,N,N,U, I,N,I,I,
     ]
   }, {
     f: `{alt|@_ a,b,c}`,
-    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Any, unmarked: true, interpr: RecIdent},
     results: [ // ! should be checked manually
 I,M,M,I, N,M,U,I, I,M,M,I, I,M,U,I, 
 M,M,M,M, N,M,U,I, I,M,M,I, U,M,U,M, 
@@ -300,7 +301,7 @@ I,M,M,I, N,M,U,I, I,M,M,I, I,M,U,I,
     ]
   }, {
     f: `{alt|..@_ a,b,c}`,
-    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Even, unmarked: true, interpr: RecIdent},
     results: [ // ! should be checked manually
 U,M,U,M, N,M,U,I, U,M,U,I, U,M,U,M, 
 M,M,M,M, N,M,U,I, I,M,M,I, U,M,U,M, 
@@ -309,7 +310,7 @@ M,M,M,M, N,M,U,I, I,M,M,I, U,M,U,M,
     ]
   }, {
     f: `{alt|..@._ a,b,c}`,
-    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecIdent},
+    sign: {reEntryPar: Parity.Odd, unmarked: true, interpr: RecIdent},
     results: [ // ! should be checked manually
 I,M,M,I, N,M,U,I, I,M,M,I, I,M,U,I, 
 M,M,M,M, N,M,U,I, I,M,M,I, U,M,U,M, 
@@ -323,7 +324,7 @@ zoraBlock(`Testing UCalc.calc with 3 vals`, t => {
 
   seqREV3->Js.Array2.forEach(input => {
     t->block(`given value space for ${input.f}`, t => {
-      let actual = valSpc3->Js.Array2.map(((a,b,c)) => UCalc.calc(input.sign, #NestToR(list{c,b,a}) ) )
+      let actual = valSpc3->Js.Array2.map(((a,b,c)) => calcRE(input.sign, #NestToR(list{c,b,a}) ) )
 
       let expected = input.results
       t->equal(actual, expected, `should be according to ${input.f} results`)
@@ -335,27 +336,27 @@ zoraBlock(`Testing UCalc.calc with 3 vals`, t => {
 // ---------------------------------------
 // Samples with empty nestings:
 
-let seqRE_empty: array<(SeqRE.sig, Const.t)> = [
-  ({reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecInstr}, I),
-  ({reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecInstr}, U),
-  ({reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecInstr}, I),
-  ({reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecInstr}, I),
-  ({reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecInstr}, U),
-  ({reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecInstr}, I),
+let seqRE_empty: array<(sig, Const.t)> = [
+  ({reEntryPar: Parity.Any, unmarked: false, interpr: RecInstr}, I),
+  ({reEntryPar: Parity.Even, unmarked: false, interpr: RecInstr}, U),
+  ({reEntryPar: Parity.Odd, unmarked: false, interpr: RecInstr}, I),
+  ({reEntryPar: Parity.Any, unmarked: true, interpr: RecInstr}, I),
+  ({reEntryPar: Parity.Even, unmarked: true, interpr: RecInstr}, U),
+  ({reEntryPar: Parity.Odd, unmarked: true, interpr: RecInstr}, I),
 
-  ({reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecIdent}, I),
-  ({reEntryPar: Parity.Even, unmarked: false, interpr: SeqRE.RecIdent}, U),
-  ({reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecIdent}, I),
-  ({reEntryPar: Parity.Any, unmarked: true, interpr: SeqRE.RecIdent}, I),
-  ({reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecIdent}, U),
-  ({reEntryPar: Parity.Odd, unmarked: true, interpr: SeqRE.RecIdent}, I),
+  ({reEntryPar: Parity.Any, unmarked: false, interpr: RecIdent}, I),
+  ({reEntryPar: Parity.Even, unmarked: false, interpr: RecIdent}, U),
+  ({reEntryPar: Parity.Odd, unmarked: false, interpr: RecIdent}, I),
+  ({reEntryPar: Parity.Any, unmarked: true, interpr: RecIdent}, I),
+  ({reEntryPar: Parity.Even, unmarked: true, interpr: RecIdent}, U),
+  ({reEntryPar: Parity.Odd, unmarked: true, interpr: RecIdent}, I),
 ]
 
 zoraBlock(`Testing empty list cases`, t => {
 
   seqRE_empty->Js.Array2.forEach(((sign, result)) => {
     t->block(`given empty list`, t => {
-      let actual = UCalc.calc(sign, #NestToR(list{}) )
+      let actual = calcRE(sign, #NestToR(list{}) )
 
       let expected = result
       t->equal(actual, expected, `should be ${result->Const.showAsKey}`)
@@ -371,36 +372,36 @@ zoraBlock(`Testing UCalc.calc with >= 4 vals and some edge cases`, t => {
   open Const
   t->block(`given arbitrary nested values`, t => {
 
-    let inputSign: SeqRE.sig = {reEntryPar: Parity.Odd, unmarked: false, interpr: SeqRE.RecInstr}
+    let inputSign: sig = {reEntryPar: Parity.Odd, unmarked: false, interpr: RecInstr}
     let inputVals = list{U,U,N,N}
-    let actual = UCalc.calc(inputSign, #NestToR(inputVals))
+    let actual = calcRE(inputSign, #NestToR(inputVals))
 
     let expected = U
     t->equal(actual, expected, `should be ${expected->Const.showAsKey}`)
   })
   t->block(`given arbitrary nested values`, t => {
 
-    let inputSign: SeqRE.sig= {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecInstr}
+    let inputSign: sig= {reEntryPar: Parity.Even, unmarked: true, interpr: RecInstr}
     let inputVals = list{N,U,N,N,U}
-    let actual = UCalc.calc(inputSign, #NestToR(inputVals))
+    let actual = calcRE(inputSign, #NestToR(inputVals))
 
     let expected = U
     t->equal(actual, expected, `should be ${expected->Const.showAsKey}`)
   })
   t->block(`given arbitrary nested values`, t => {
 
-    let inputSign: SeqRE.sig= {reEntryPar: Parity.Any, unmarked: false, interpr: SeqRE.RecInstr}
+    let inputSign: sig= {reEntryPar: Parity.Any, unmarked: false, interpr: RecInstr}
     let inputVals = list{I,N,I,N,N,N,I}
-    let actual = UCalc.calc(inputSign, #NestToR(inputVals))
+    let actual = calcRE(inputSign, #NestToR(inputVals))
 
     let expected = I
     t->equal(actual, expected, `should be ${expected->Const.showAsKey}`)
   })
   t->block(`given arbitrary nested values`, t => {
 
-    let inputSign: SeqRE.sig= {reEntryPar: Parity.Even, unmarked: true, interpr: SeqRE.RecInstr}
+    let inputSign: sig= {reEntryPar: Parity.Even, unmarked: true, interpr: RecInstr}
     let inputVals = list{N,N,N,N,N,N,N,N,N,N}
-    let actual = UCalc.calc(inputSign, #NestToR(inputVals))
+    let actual = calcRE(inputSign, #NestToR(inputVals))
 
     let expected = I
     t->equal(actual, expected, `should be ${expected->Const.showAsKey}`)
