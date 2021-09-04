@@ -20,7 +20,7 @@ module FORM = {
   and expr<'a> = array<t<'a>>
   and seq<'a> = list<expr<'a>>
   and fdna<'a> = { // [FDna] expression
-      dna: FormDNA.t,
+      dna: DNA.t,
       form: option<expr<'a>>,
       vars: option<array<string>>
     }
@@ -66,7 +66,7 @@ module FORM = {
       }
     | None => ""
     }
-    formStr ++ dna->FormDNA.show(~sortNMUI=sortNMUI)
+    formStr ++ dna->DNA.show(~sortNMUI=sortNMUI)
   }
 
   /**
@@ -95,7 +95,7 @@ module FCON = {
     }
   }
   and reduceExpr = (reducerFn, init, expr: expr) =>
-    expr->Js.Array2.reduce(reduceForm(reducerFn), init)
+    expr->Belt.Array.reduce(init, reduceForm(reducerFn))
 
   and reduceSeq = (reducerFn, init, seq: seq) =>
     seq->Belt.List.reduce(init, reduceExpr(reducerFn))
@@ -103,7 +103,7 @@ module FCON = {
   /**
    * Reducer function that traverses a [FORM]
    */
-  let reduce = reduceExpr
+  let reduce = (expr, reducerFn, init) => reduceExpr(reducerFn, init, expr)
 
 
   let rec toFVAR_form = (form: t): FORM.t<var> =>
@@ -149,13 +149,13 @@ module FVAR = {
   let rec reduceForm = (reducerFn, init, form: t) => {
     let acc = reducerFn(init, form)
     switch form {
-    | FORM.Mark(expr) => expr->reduceExpr(reducerFn, acc, _) // replaced |>
-    | FORM.SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _) // replaced |>
+    | FORM.Mark(expr) => expr->reduceExpr(reducerFn, acc, _)
+    | FORM.SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _)
     | _ => acc
     }
   }
   and reduceExpr = (reducerFn, init, expr: expr) =>
-    expr->Js.Array2.reduce(reduceForm(reducerFn), init)
+    expr->Belt.Array.reduce(init, reduceForm(reducerFn))
 
   and reduceSeq = (reducerFn, init, seq: seq) =>
     seq->Belt.List.reduce(init, reduceExpr(reducerFn))
@@ -163,11 +163,11 @@ module FVAR = {
   /**
    * Reducer function that traverses a [FORM]
    */
-  let reduce = reduceExpr
+  let reduce = (expr, reducerFn, init) => reduceExpr(reducerFn, init, expr)
 
 
   /**
-   * Gets variables in alphabetic order from a [FORMula]
+   * Gets variables in alphabetic order from a [FORM]
    */
   let getVars = (expr: expr) => {
     // https://jrsinclair.com/articles/2019/functional-js-traversing-trees-with-recursive-reduce/
@@ -179,15 +179,27 @@ module FVAR = {
           Pervasives.compare(a, b)
       })
 
-    let _getVars = (vars, content) =>
-      switch content {
+    let _getVars = (vars, form) =>
+      switch form {
       | FORM.Var(lbl) => vars->Belt.Set.add(lbl) // vars->Js.Array2.concat([lbl])
       | _ => vars
       }
     let init = Belt.Set.make(~id=module(VarCmp))
-    let vars = expr->reduce(_getVars, init, _) // replaced |>
+    let vars = expr->reduce(_getVars, init) // replaced |>
 
     vars->Belt.Set.toArray
+  }
+
+  /**
+   * Counts all variables in a [FORM]
+   */
+  let countVars = (expr: expr) => {
+    let _countVars = (n, form) =>
+      switch form {
+      | FORM.Var(_) => n + 1
+      | _ => n
+      }
+    expr->reduce(_countVars, 0)
   }
 
 }
@@ -260,6 +272,24 @@ module DepthTree = {
           }
   ]
 
+}
+
+
+module FormDNA = {
+
+  type t<'a> = FORM.fdna<'a>
+
+  let show = FORM.showFdna
+
+
+  // TODO
+  let dnaToFORM = (dna: DNA.t) => {
+    // to normal FORM
+    []
+  }
+  let toFORM = ({dna, form, vars}: t<'a>) => {
+    dnaToFORM(dna)
+  }
 }
 
 

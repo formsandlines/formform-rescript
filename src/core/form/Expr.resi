@@ -17,7 +17,7 @@ module FORM: {
   and expr<'a> = array<t<'a>>
   and seq<'a> = list<expr<'a>>
   and fdna<'a> = { // [FDna] expression
-      dna: FormDNA.t,
+      dna: DNA.t,
       form: option<expr<'a>>,
       vars: option<array<string>>
     }
@@ -33,7 +33,7 @@ module FCON: {
   type seq = FORM.seq<con>
   type fdna = FORM.fdna<con>
 
-  let reduce: (('a, t) => 'a, 'a, FORM.expr<con>) => 'a
+  let reduce: (expr, ('a, t) => 'a, 'a) => 'a
 
   let toFVAR: FORM.expr<con> => FORM.expr<var>
 }
@@ -45,9 +45,10 @@ module FVAR: {
   type seq = FORM.seq<var>
   type fdna = FORM.fdna<var>
 
-  let reduce: (('a, t) => 'a, 'a, FORM.expr<var>) => 'a
+  let reduce: (expr, ('a, t) => 'a, 'a) => 'a
 
   let getVars: expr => array<string>
+  let countVars: expr => int
 }
 
 
@@ -74,6 +75,17 @@ module DepthTree: {
   let parse: FORM.expr<'a> => tRoot<'a>
 
   let testTrees: array<tRoot<con>> 
+}
+
+
+module FormDNA: {
+
+  type t<'a> = FORM.fdna<'a>
+
+  let show: (~sortNMUI: bool=?, FORM.fdna<'a>) => string
+
+  let dnaToFORM: (DNA.t) => FORM.expr<'a>
+  let toFORM: (t<'a>) => FORM.expr<'a>
 }
 
 

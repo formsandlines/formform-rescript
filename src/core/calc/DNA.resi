@@ -7,6 +7,7 @@ let isValidLength: int => bool
 
 let make: array<Const.t> => option<t>
 let makeUnsafe: array<Const.t> => t
+let genRandom: (int) => t
 
 let toArray: t => array<Const.t>
 

@@ -81,9 +81,9 @@ module Const = {
   // Operations
   // ----------------------------------------------------
 
-  /**
-   * Inverts/marks [Const] value
-   */
+  @ocaml.doc("
+    * Inverts/marks [Const] value
+  ")
   let inv = (x: t) => {
     switch x {
     | N => M
@@ -93,9 +93,9 @@ module Const = {
     }
   }
 
-  /**
-   * Relates two [Const] values
-   */
+  @ocaml.doc("
+    * Relates two [Const] values
+  ")
   let rel = (x: t, y: t) => {
     switch (x, y) {
     | (x, N) => x

@@ -97,19 +97,19 @@ let interEval = (expr: FORM.expr<var>, intpr: Interpr.t): Const.t =>
   expr->Interpr.interpret(intpr)->eval
 
 /**
-* Evaluates [FORMula] for all possible interpretations as a [FormDNA]
+* Evaluates [FORMula] for all possible interpretations as a [DNA]
 */
 let evalAll = (expr): FORM.fdna<var> => {
   let vars = expr->FVAR.getVars
   let vnum = vars->Js.Array2.length
   let vspace = vnum->VSpace.make
 
-  let fdna = vspace->VSpace.toArray->Js.Array2.map((vpoint) => {
+  let dna = vspace->VSpace.toArray->Js.Array2.map((vpoint) => {
     switch vpoint->Interpr.fromVPoint(vars) {
     | Some(interpr) => expr->interEval(interpr)
     | None => raise(Not_found)
     }
-  })->Js.Array2.reverseInPlace->FormDNA.makeUnsafe // <- ! inefficient
+  })->Js.Array2.reverseInPlace->DNA.makeUnsafe // <- ! reverseInPlace inefficient?
 
-  { dna: fdna, form: Some(expr), vars: Some(vars) }
+  { dna: dna, form: Some(expr), vars: Some(vars) }
 }

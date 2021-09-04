@@ -1,9 +1,9 @@
 open Zora
 
-open FormDNA
+open DNA
 
 
-type dna_sample = {f: string, nuim: FormDNA.t, nmui: FormDNA.t}
+type dna_sample = {f: string, nuim: DNA.t, nmui: DNA.t}
 
 let dnaV0 = [
   makeUnsafe([N]),

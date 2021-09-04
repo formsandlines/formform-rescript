@@ -1,10 +1,10 @@
 open Calc
 
 // ===================================================================
-// [FormDNA]: formDNA -> [Const]-value-structure of a FORMula
+// [DNA]: formDNA -> [Const]-value-structure of a FORMula
 // ===================================================================
 
-// Note that an empty [FormDNA] array is impossible to construct since the type is private
+// Note that an empty [DNA] array is impossible to construct since the type is private
 type t = array<Const.t>
 
 
@@ -36,10 +36,14 @@ let makeUnsafe = (arr) => {
   else { raise(Not_found) }
 }
 
+let genRandom = (size) => {
+  [] // TODO
+}
+
 let toArray = (dna) => dna
 
 /** 
-  * Reorders positions of [Const] from given [FormDNA] to NMUI ordering
+  * Reorders positions of [Const] from given [DNA] to NMUI ordering
   */
 let rec reorderToNMUI = (dna) => {
   let len = dna->Js.Array2.length
@@ -65,7 +69,7 @@ let rec reorderToNMUI = (dna) => {
 }
 
 /**
-  * Given an array of ints, converts it to [FormDNA]
+  * Given an array of ints, converts it to [DNA]
   * with optional NMUI interpretation/ordering
   */
 let fromIntArr = (~sortNMUI=false, arr) => {
@@ -87,7 +91,7 @@ let fromIntArrUnsafe = (~sortNMUI=false, arr) =>
   }
 
 /**
-  * Given an array of strings (chars), converts it to [FormDNA]
+  * Given an array of strings (chars), converts it to [DNA]
   */
 let fromStrArr = (arr) => {
   if (arr->Belt.Array.length->isValidLength == false) { None }
@@ -107,7 +111,7 @@ let fromStrArrUnsafe = (arr) =>
   }
 
 /**
-  * Generates notation for [FormDNA]
+  * Generates notation for [DNA]
   * Note: NUIM ordering is *always* expected, so ~sortNMUI will reorder the whole dna
   */
 let show = (~sortNMUI=false, ~spaced=false, dna: t) =>{
@@ -132,14 +136,14 @@ let raw = (dna: t) =>
 // ----------------------------------------------------
 
 /**
-  * Inverts/marks all [Const] values of [FormDNA]
+  * Inverts/marks all [Const] values of [DNA]
   */
 let inv = (dna: t) =>
   (dna == []) ? [Const.inv(Const.N)] : dna->Js.Array2.map(c => Const.inv(c))
 
 /**
-  * Relates all corresponding [Const] values between two [FormDNA]
-  * (if [FormDNA]s differ in length, only the indexical matching subpart of the longer one is related)
+  * Relates all corresponding [Const] values between two [DNA]
+  * (if [DNA]s differ in length, only the indexical matching subpart of the longer one is related)
   */
 let rel = (dna_a: t, dna_b: t) => {
   let len_a = dna_a->Js.Array2.length

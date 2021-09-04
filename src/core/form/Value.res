@@ -66,8 +66,8 @@ module VSpace = {
     base->Helper.ListMonads.cartesProd(dim)->Belt.List.toArray
   }
 
-  let toFormDNA = (vspc: t, map: (VPoint.t => Const.t)): FormDNA.t =>
-    vspc->Js.Array2.map(map)->Js.Array2.reverseInPlace->FormDNA.makeUnsafe
+  let toDNA = (vspc: t, map: (VPoint.t => Const.t)): DNA.t =>
+    vspc->Js.Array2.map(map)->Js.Array2.reverseInPlace->DNA.makeUnsafe
 
 }
 
@@ -77,7 +77,7 @@ module VMap = {
 
 module VTable = {
   // ===================================================================
-  // [VTable]: value table -> key-value dictionary for [FormDNA]
+  // [VTable]: value table -> key-value dictionary for [DNA]
   // ===================================================================
 
   type t = Js.Dict.t<Const.t>
@@ -94,8 +94,8 @@ module VTable = {
 
   // let makeN = ()
 
-  let makeFromFDna = (dna: FormDNA.t) => {
-    let dnaArr = dna->FormDNA.toArray
+  let makeFromDNA = (dna: DNA.t) => {
+    let dnaArr = dna->DNA.toArray
     let len = Js.Math.log(dnaArr->Js.Array2.length->Js.Int.toFloat) /. Js.Math.log(4.0) // ? inefficient because VSpace.make does opposite conversion
     let vspc = VSpace.make(len->Js.Math.floor_int)
 

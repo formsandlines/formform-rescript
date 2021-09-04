@@ -19,7 +19,7 @@ module VSpace: {
 
   let make: (~sortNMUI: bool=?, int) => t
 
-  let toFormDNA: (t, VPoint.t => Calc.Const.t) => FormDNA.t
+  let toDNA: (t, VPoint.t => Calc.Const.t) => DNA.t
 
 }
 
@@ -33,5 +33,5 @@ module VTable: {
 
   let show: t => string
 
-  let makeFromFDna: (FormDNA.t) => t
+  let makeFromDNA: (DNA.t) => t
 }
