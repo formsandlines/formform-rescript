@@ -255,6 +255,10 @@ module DepthTree = {
     {form: expr, children: expr->Js.Array2.mapi((cnt,i) => cnt->parseSubtree([i]))}
 
 
+  // let traversePath = (root: tRoot<'a>, index: tIndex): 
+
+
+
   // some example trees for testing
   let testTrees = [
     {form: [], children: []},
@@ -315,6 +319,20 @@ module Sequence = {
     | list{expr, ...seq'} => Mark( Belt.Array.concat(expr, [seq'->toFORMt]) )
     }
   }
+
+
+  // let rec fromRootPath = (toIndex: DepthTree.tIndex, fromContext: DepthTree.tRoot): option<t> => {
+
+  // }
+
+
+  
+  // let rec fromFORMt = (f: FORM.t<'a>): option<t<'a>> =>
+  //   switch f {
+  //   | Mark(expr) => 
+  //   | _ => None
+  //   }
+
 
   // let rec fromFORMt = (f: FORM.t): option<t> => {
   //   open FORM

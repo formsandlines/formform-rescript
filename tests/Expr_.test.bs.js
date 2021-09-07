@@ -114,7 +114,7 @@ var exprsCon = [
         }
       }
     ],
-    str: "()u/Über Ich/{(m), _@'}[m⁘3210]"
+    str: "()U/Über Ich/{(M), _@'}[M⁘3210]"
   }
 ];
 
@@ -489,7 +489,7 @@ var dtrees = [
         TAG: /* CVal */1,
         _0: /* U */1
       }],
-    str: "{ root, form: 'u', children: [{ index: 0, form: 'u' }] }"
+    str: "{ root, form: 'U', children: [{ index: 0, form: 'U' }] }"
   },
   {
     tree: Caml_array.get(Expr.DepthTree.testTrees, 2),
@@ -514,7 +514,7 @@ var dtrees = [
           }
         ]
       }],
-    str: "{ root, form: '(m())', children: [{ index: 0, form: '(m())', children: [{ index: 00, form: 'm' }, { index: 01, form: '()', children: [] }] }] }"
+    str: "{ root, form: '(M())', children: [{ index: 0, form: '(M())', children: [{ index: 00, form: 'M' }, { index: 01, form: '()', children: [] }] }] }"
   }
 ];
 

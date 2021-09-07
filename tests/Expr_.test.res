@@ -25,7 +25,7 @@ let exprsCon: array<expr_sample<con>> = [
          SeqRE({reEntryPar: Parity.Any, unmarked: true, interpr: RecIdent},
            list{[ FORM.Mark([ CVal(M) ]) ],[]}),
          FDna({dna: DNA.makeUnsafe([M,I,U,N]), form: Some([ CVal(M) ]), vars: None}) ],
-    str: `()u/Über Ich/{(m), _@'}[m⁘3210]`
+    str: `()U/Über Ich/{(M), _@'}[M⁘3210]`
   },
 ]
 
@@ -179,7 +179,7 @@ let dtrees: array<depthTree_sample<con>> = [
   {
     tree: DepthTree.testTrees[1],
     form: [ CVal(U) ],
-    str: "{ root, form: 'u', children: [{ index: 0, form: 'u' }] }"
+    str: "{ root, form: 'U', children: [{ index: 0, form: 'U' }] }"
   },
   {
     tree: DepthTree.testTrees[2],
@@ -189,7 +189,7 @@ let dtrees: array<depthTree_sample<con>> = [
   {
     tree: DepthTree.testTrees[3],
     form: [ Mark([ CVal(M),Mark([]) ]) ],
-    str: "{ root, form: '(m())', children: [{ index: 0, form: '(m())', children: [{ index: 00, form: 'm' }, { index: 01, form: '()', children: [] }] }] }"
+    str: "{ root, form: '(M())', children: [{ index: 0, form: '(M())', children: [{ index: 00, form: 'M' }, { index: 01, form: '()', children: [] }] }] }"
   },
 ]
 

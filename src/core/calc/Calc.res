@@ -6,19 +6,19 @@ module Const = {
   //   This is because this ordering has some beneficial properties
   // ===================================================================
 
-  @deriving(jsConverter) // generates Converters to/from Enum index
+  @deriving({jsConverter,accessors}) // generates Converters to/from Enum index
   type t = N | U | I | M
 
   /**
    * Generates notation for [Const]
    */
   let show = (x: t) => switch x {
-  | N => "."
-  | U => "u"
-  | I => "i"
-  | M => "m"
+  | N => "N" //"."
+  | U => "U" //"u"
+  | I => "I" //"i"
+  | M => "M" //"m"
   }
-  let showAsKey = (x: t) => switch x {
+  let showAsKey = (x: t) => switch x { // ? might be redundant since <=> show()
   | N => "N"
   | U => "U"
   | I => "I"
@@ -102,7 +102,7 @@ module Const = {
     | (N, y) => y
     | (U, U) => U
     | (I, I) => I
-    | (_, _) => M
+    | (_, _) => M // ! this matches n > 3 in JS interop!
     }
   }
 }
@@ -140,6 +140,14 @@ module Nested = {
   let getList = (nest: t): list<Const.t> => switch nest {
     | #NestToL(clist) | #NestToR(clist) => clist
     }
+  
+  /** Converts to Nested from Array, mainly for JS interop */
+  let fromArrayToL = (arr): t => #NestToL(arr->Belt.List.fromArray)
+  let fromArrayToR = (arr): t => #NestToR(arr->Belt.List.fromArray)
+
+  /** Converts to Array from Nested, mainly for JS interop */
+  let toArray = (nest: t) => nest->getList->Belt.List.toArray
+
   
   /** Applies given function to [Nested] list */
   let fmapL = (#NestToL(l), fn: (list<Const.t> => list<Const.t>)) => {

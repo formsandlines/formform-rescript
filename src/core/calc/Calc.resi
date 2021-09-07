@@ -1,5 +1,6 @@
 module Const: {
   
+  @deriving({jsConverter,accessors}) // generates Converters to/from Enum index
   type t = N | U | I | M
 
   let show: (t) => string
@@ -30,6 +31,10 @@ module Nested: {
     ]) => string
 
   let getList: (t) => list<Const.t>
+
+  let fromArrayToL: (array<Const.t>) => t
+  let fromArrayToR: (array<Const.t>) => t
+  let toArray: (t) => array<Const.t>
 
   let fmapL: ([< #NestToL(list<Const.t>)], list<Const.t> => list<Const.t>)
               => [> #NestToL(list<Const.t>)]

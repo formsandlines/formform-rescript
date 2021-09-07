@@ -114,7 +114,7 @@ let fromStrArrUnsafe = (arr) =>
   * Generates notation for [DNA]
   * Note: NUIM ordering is *always* expected, so ~sortNMUI will reorder the whole dna
   */
-let show = (~sortNMUI=false, ~spaced=false, dna: t) =>{
+let show = (~sortNMUI=false, ~spaced=false, dna: t) => {
   let dna_sorted = sortNMUI ? dna->reorderToNMUI : dna
   let prefix = (sortNMUI ? `::` : `⁘`) ++ (spaced ? " " : "")
 

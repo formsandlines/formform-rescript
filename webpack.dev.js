@@ -1,17 +1,20 @@
-const PATHS = require('./webpack-paths.js');
+import PATHS from './webpack-paths.js';
 
-module.exports = {
+export default {
     mode: 'development',
     devtool: 'inline-source-map',
     entry: {
-        formform: PATHS.libSrc
+        formform: PATHS.libSrc,
+        formformRAW: PATHS.libSrcRAW
     },
     output: {
         path: PATHS.libDev,
         filename: '[name].js',
         globalObject: 'this',
-        library: 'formform',
-        libraryExport: 'default',
-        libraryTarget: 'umd'
+        library: {
+            name: 'formform',
+            export: 'default',
+            type: 'umd',
+        }
     }
 };
