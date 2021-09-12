@@ -25,7 +25,7 @@ let isValidLength = (len) =>
   | None => false
   }
 
-let make = (arr) => {
+let make = (arr) => {  // ! unsafe for JS if no type given and useless otherwise
   let len = arr->Belt.Array.length
   if (len->isValidLength) { Some(arr) }
   else { None }
@@ -40,7 +40,7 @@ let genRandom = (size) => {
   [] // TODO
 }
 
-let toArray = (dna) => dna
+let toArray = (dna) => dna  // ? useless in JS
 
 /** 
   * Reorders positions of [Const] from given [DNA] to NMUI ordering

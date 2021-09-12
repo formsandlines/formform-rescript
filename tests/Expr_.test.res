@@ -25,7 +25,7 @@ let exprsCon: array<expr_sample<con>> = [
          SeqRE({reEntryPar: Parity.Any, unmarked: true, interpr: RecIdent},
            list{[ FORM.Mark([ CVal(M) ]) ],[]}),
          FDna({dna: DNA.makeUnsafe([M,I,U,N]), form: Some([ CVal(M) ]), vars: None}) ],
-    str: `()U/Über Ich/{(M), _@'}[M⁘3210]`
+    str: `()U/Über Ich/{(M), _@~}[M⁘3210]`
   },
 ]
 
@@ -33,7 +33,7 @@ let exprsVar: array<expr_sample<var>> = [
   { f: [],
     str: ""
   },
-  { f: [ Var("a"),Var(`λ`),Var("a_n"),Var("apple"),Var(`süßer_apfel b`) ],
+  { f: [ FVar("a"),FVar(`λ`),FVar("a_n"),FVar("apple"),FVar(`süßer_apfel b`) ],
     str: `aλ"a_n""apple""süßer_apfel b"`
   },
 ]
@@ -110,19 +110,19 @@ let exprsVar: array<{"f": FVAR.expr, "vars": array<string>, "count": int}> = [
     "vars": [],
     "count": 0
   },
-  { "f": [ FORM.Mark([]),Mark([ Var("a") ]),CVal(M) ],
+  { "f": [ FORM.Mark([]),Mark([ FVar("a") ]),CVal(M) ],
     "vars": ["a"],
     "count": 1
   },
-  { "f": [ FORM.Mark([Mark([ Var("Red") ])]),Mark([ Var("Blue") ]),Var("Green") ],
+  { "f": [ FORM.Mark([Mark([ FVar("Red") ])]),Mark([ FVar("Blue") ]),FVar("Green") ],
     "vars": ["Blue","Green","Red"],
     "count": 3
   },
   { "f": [
       FORM.SeqRE({reEntryPar: Parity.Odd, unmarked: true, interpr: RecInstr},
-        list{[ Var(`Mäuse`),
+        list{[ FVar(`Mäuse`),
           SeqRE({reEntryPar: Parity.Odd, unmarked: true, interpr: RecInstr},
-            list{[ Var(`Ratten`) ],[ Mark([ Var(`Würmer`) ]) ]}
+            list{[ FVar(`Ratten`) ],[ Mark([ FVar(`Würmer`) ]) ]}
           )
         ]}
       ),
@@ -131,7 +131,7 @@ let exprsVar: array<{"f": FVAR.expr, "vars": array<string>, "count": int}> = [
     "count": 3
   },
   { "f": [
-      FORM.FDna({ dna: DNA.makeUnsafe([N]), form: Some([ Var("a"),Var("b") ]), vars: Some(["a","b"]) })
+      FORM.FDna({ dna: DNA.makeUnsafe([N]), form: Some([ FVar("a"),FVar("b") ]), vars: Some(["a","b"]) })
   ],
     "vars": [],
     "count": 0

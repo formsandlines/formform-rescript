@@ -62,7 +62,7 @@ module VSpace = {
   // Might be more inefficient than "make" because of list conversion:
   let make'__alt = (~sortNMUI=false, dim: int): t => {
 
-    let base = sortNMUI ? Const.enum_NMUI : Const.enum
+    let base = Const.tEnumList(~sortNMUI=sortNMUI, ())
     base->Helper.ListMonads.cartesProd(dim)->Belt.List.toArray
   }
 

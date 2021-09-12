@@ -5,13 +5,14 @@ type var = Variable
 
 module FORM: {
 
+  @deriving(accessors)
   type rec t<'a> = 
     | Mark(expr<'a>): t<'a>
     | CVal(Const.t): t<'a>
     | SeqRE(SeqRE.sig, seq<'a>): t<'a>
     | Uncl(string): t<'a>
 
-    | Var(string): t<var>
+    | FVar(string): t<var>
     | FDna(fdna<'a>): t<'a>
 
   and expr<'a> = array<t<'a>>
@@ -21,6 +22,16 @@ module FORM: {
       form: option<expr<'a>>,
       vars: option<array<string>>
     }
+
+
+  let mark: (expr<'a>) => t<'a>
+  let cVal: (Const.t) => t<'a>
+  let seqRE: (SeqRE.sig, seq<'a>) => t<'a>
+  let uncl: (string) => t<'a>
+
+  let fVar: (string) => t<var>
+  let fDna: (fdna<'a>) => t<'a>
+  
 
   let show: (~sortNMUI: bool=?, expr<'any>) => string
 

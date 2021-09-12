@@ -6,8 +6,12 @@ module Const = {
   //   This is because this ordering has some beneficial properties
   // ===================================================================
 
-  @deriving({jsConverter,accessors}) // generates Converters to/from Enum index
+  // @deriving({jsConverter,accessors}) // generates Converters to/from Enum index
+  @deriving(jsConverter) // generates Converters to/from Enum index
   type t = N | U | I | M
+
+  let tEnum = (~sortNMUI=false, ()) => sortNMUI ? [N,M,U,I] : [N,U,I,M]
+  let tEnumList = (~sortNMUI=false, ()) => sortNMUI ? list{N,M,U,I} : list{N,U,I,M}
 
   /**
    * Generates notation for [Const]
@@ -70,12 +74,6 @@ module Const = {
     | _ => None
     }
   }
-
-  let enum = list{N,U,I,M}
-  let enum_NMUI = list{N,M,U,I}
-  let enumNM = list{N,M}
-  let enumUI = list{U,I}
-
 
   // ----------------------------------------------------
   // Operations
@@ -243,3 +241,17 @@ module Nested = {
     }
   }
 }
+
+
+// open Const
+// let jsConst = {
+//   "tEnum": tEnum,
+//   "show": show,
+//   "tFromStr": tFromStr,
+//   "inv": inv,
+//   "rel": rel
+// }
+// let jsNested = {
+//   "show": show
+
+// }

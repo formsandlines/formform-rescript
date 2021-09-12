@@ -1,5 +1,6 @@
 {
   "name": "formform",
+  "namespace": true,
   "version": "0.16.1",
   "sources": [
     {
@@ -15,5 +16,15 @@
     }
   ],
   "suffix": ".bs.js",
-  "bs-dev-dependencies": ["@dusty-phillips/rescript-zora"]
+  "bs-dev-dependencies": ["@dusty-phillips/rescript-zora"],
+  "gentypeconfig": {
+    "language": "untyped",
+    "shims": {},
+    "generatedFileExtension": ".gen.js",
+    "module": "es6",
+    "debug": {
+      "all": false,
+      "basic": false
+    }
+  }
 }

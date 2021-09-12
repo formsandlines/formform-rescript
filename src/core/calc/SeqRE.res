@@ -10,8 +10,26 @@ open Calc
 // Interpretation alternatives for MN in re-entry FORMs
 // -> See uFORM iFORM, p. 136
 type uType = UFORM | IFORM
+
+@deriving(accessors)
 type mn = RecInstr | RecIdent // default is RecInstr
+
+@deriving(jsConverter)
 type sig = {reEntryPar: Parity.t, unmarked: bool, interpr: mn}
+
+
+let mnFromStr = (str) => switch str {
+| "RecInstr" | "recInstr" | "Recursive Instruction" | "rIn" | "in" => RecInstr
+| "RecIdent" | "recIdent" | "Recursive Identity" | "rId" | "id"  => RecIdent
+| _ => raise(Not_found)
+}
+
+// ! mn and sig need proper make functions for JS!
+
+// let makeSig = (reEntryPar, unmarked, interpr) => {
+
+// }
+
 
 let showSig = ({reEntryPar, unmarked, interpr}) => {
   let (reDots, preDot) = switch reEntryPar {
@@ -21,7 +39,7 @@ let showSig = ({reEntryPar, unmarked, interpr}) => {
   }
   let reMark = switch interpr {
   | RecInstr => "@"
-  | RecIdent => "@'"
+  | RecIdent => "@~"
   }
   `${unmarked ? "_" : ""}${preDot}${reMark}${reDots}` // <- nest to right
   // `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}`
@@ -55,6 +73,7 @@ let getUType = ({reEntryPar, unmarked, _}, resPar: Parity.t) =>
 let calcRE = ({reEntryPar, unmarked, interpr}: sig, 
              #NestToR(nestedC: list<Const.t>)): Const.t => {
 
+  // ! There is no proper check if NestToR and not NestToL in JS!
   // ? maybe there is a better way to handle empty list cases to avoid the additional query
 
   let resPar: Parity.t = nestedC == list{} || mod(nestedC->Js.List.length,2) != 0 ? Odd : Even
@@ -122,7 +141,7 @@ let calcRE = ({reEntryPar, unmarked, interpr}: sig,
         switch (nestedC, reType) {
         | (list{_,c, ..._}, UFORM) => Const.rel(U,c)
         | (list{_,c, ..._}, IFORM) => Const.rel(I,c)
-        | _ => raise(Helper.Unreachable)
+        | _ => /* Proof this is unreachable goes here. */ assert false // raise(Helper.Unreachable)
         }
 
       } else if (interpr == RecIdent) && unmarked && (bottom_c != Some(N)) {
@@ -141,7 +160,7 @@ let calcRE = ({reEntryPar, unmarked, interpr}: sig,
         switch (bottom_c, reType) { // ?? can we avoid the code repetition?
         | (Some(c), UFORM) => Const.rel(U,c)
         | (Some(c), IFORM) => Const.rel(I,c)
-        | _ => raise(Helper.Unreachable)
+        | _ => /* Proof this is unreachable goes here. */ assert false // raise(Helper.Unreachable)
         }
 
       } else {
@@ -167,7 +186,7 @@ let calcRE = ({reEntryPar, unmarked, interpr}: sig,
           | list{N,U,N} | list{N,I,N} => reEntryPar == Even ? I : U
           | list{U,N}   | list{I,N}   => U
           | list{U}     | list{I}     => reEntryPar == Even ? U : I
-          | _ => raise(Helper.Unreachable)
+          | _ => /* Proof this is unreachable goes here. */ assert false // raise(Helper.Unreachable)
           }
         } else {
           // in the Odd re-entry case (even resolution), mn is (mn)!
@@ -176,7 +195,7 @@ let calcRE = ({reEntryPar, unmarked, interpr}: sig,
           | list{N,U,N} | list{N,I,N} => reEntryPar == Even ? U : I // U/I swapped
           | list{U,N}   | list{I,N}   => U // same
           | list{U}     | list{I}     => reEntryPar == Even ? I : U // U/I swapped
-          | _ => raise(Helper.Unreachable)
+          | _ => /* Proof this is unreachable goes here. */ assert false // raise(Helper.Unreachable)
           }
         }
       }

@@ -1,8 +1,15 @@
+// @genType
 module Const: {
   
-  @deriving({jsConverter,accessors}) // generates Converters to/from Enum index
+  // @deriving({jsConverter,accessors}) // generates Converters to/from Enum index
+  @deriving(jsConverter) // generates Converters to/from Enum index
+  // @genType.opaque
   type t = N | U | I | M
 
+  let tEnum: (~sortNMUI: bool=?, unit) => array<t>
+  let tEnumList: (~sortNMUI: bool=?, unit) => list<t>
+
+  // @genType
   let show: (t) => string
   let showAsKey: (t) => string
 
@@ -10,12 +17,6 @@ module Const: {
   let fromInt: (~sortNMUI: bool=?, int) => option<t>
 
   let tFromStr: (string) => option<t>
-
-  let enum: list<t>
-  let enum_NMUI: list<t>
-  let enumNM: list<t>
-  let enumUI: list<t>
-
 
   let inv: (t) => t
   let rel: (t, t) => t
@@ -55,3 +56,14 @@ module Nested: {
   let calcL: [< #NestToL(list<Const.t>)] => Const.t
   let calcR: [< #NestToR(list<Const.t>)] => Const.t
 }
+
+// @genType
+// let jsConst: {
+//   "inv": Const.t => Const.t,
+//   "rel": (Const.t, Const.t) => Const.t,
+//   "show": Const.t => string,
+//   "tEnum": (~sortNMUI: bool=?, unit) => array<Const.t>,
+//   "tFromStr": string => option<Const.t>,
+// }
+// @genType
+// let jsNested:

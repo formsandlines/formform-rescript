@@ -12,37 +12,37 @@ module Isolator = {
   // 0 → 1: `( {@(a)} {..@(a)} )`
   let n = (var: string): t =>
     Mark([
-      SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ Mark([Var(var)]) ]}),
-      SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ Mark([Var(var)]) ]})
+      SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ Mark([FVar(var)]) ]}),
+      SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ Mark([FVar(var)]) ]})
     ])
   // 1 → 1: `( {@a} {..@a} )`
   let m = (var: string): t =>
     Mark([
-      SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ Var(var) ]}),
-      SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ Var(var) ]})
+      SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ FVar(var) ]}),
+      SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ FVar(var) ]})
     ])
   // 2 → 1: `( ({@(a)}a) ({..@a}(a)) )`
   let u = (var: string): t =>
     Mark([
       Mark([
-        SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ Mark([Var(var)]) ]}),
-        Var(var)
+        SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ Mark([FVar(var)]) ]}),
+        FVar(var)
       ]),
       Mark([
-        SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ Var(var) ]}),
-        Mark([Var(var)])
+        SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ FVar(var) ]}),
+        Mark([FVar(var)])
       ])
     ])
   // 3 → 1: `( ({@a}(a)) ({..@(a)}a) )`
   let i = (var: string): t =>
     Mark([
       Mark([
-        SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ Var(var) ]}),
-        Mark([Var(var)])
+        SeqRE({reEntryPar: Any, unmarked: false, interpr: RecInstr}, list{[ FVar(var) ]}),
+        Mark([FVar(var)])
       ]),
       Mark([
-        SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ Mark([Var(var)]) ]}),
-        Var(var)
+        SeqRE({reEntryPar: Even, unmarked: false, interpr: RecInstr}, list{[ Mark([FVar(var)]) ]}),
+        FVar(var)
       ])
     ])
 

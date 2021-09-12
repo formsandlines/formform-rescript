@@ -3,8 +3,13 @@ open Calc
 
 type uType = private UFORM | IFORM
 
+@deriving(accessors)
 type mn = RecInstr | RecIdent // default is RecInstr
+
+@deriving(jsConverter)
 type sig = {reEntryPar: Parity.t, unmarked: bool, interpr: mn}
+
+let mnFromStr: (string) => mn
 
 let showSig: (sig) => string
 let showMN: (mn) => string

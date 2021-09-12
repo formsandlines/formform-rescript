@@ -42,9 +42,11 @@ module Calc = {
     open Const
     open Converter.Const
 
+    let tEnum = () => tEnum(~sortNMUI=config["sortNMUI"])
+
     let show = (d) => d->fromJS->show
 
-    let showAsKey = (d) => d->fromJS->showAsKey
+    // let showAsKey = (d) => d->fromJS->showAsKey
 
     let fromStr = (str) => switch str->tFromStr {
     | Some(c) => c->toJS

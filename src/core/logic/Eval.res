@@ -32,7 +32,7 @@ module Interpr = {
     | FORM.SeqRE(reSign, forms) => SeqRE(reSign, forms->interpretSeq(intpr))
     | FORM.Uncl(lbl) => Uncl(lbl)
 
-    | FORM.Var(lbl) => {
+    | FORM.FVar(lbl) => {
         let maybeVal = intpr->Js.Dict.get(lbl)
         switch maybeVal {
         | Some(val) => FORM.CVal(val)

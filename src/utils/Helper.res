@@ -6,6 +6,7 @@ let cleanStr = (str) => {
   str
 }
 
+
 let hasDecimal = (x) => Belt.Float.fromInt(Belt.Float.toInt(x)) < x
 
 module Parity = {

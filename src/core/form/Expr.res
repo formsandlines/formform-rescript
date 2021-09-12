@@ -8,13 +8,14 @@ module FORM = {
   // ===================================================================
   // Polymorphic generalized FORM type
   // ===================================================================
+  @deriving(accessors)
   type rec t<'a> =
     | Mark(expr<'a>): t<'a>
     | CVal(Const.t): t<'a>
     | SeqRE(SeqRE.sig, seq<'a>): t<'a>
     | Uncl(string): t<'a>
 
-    | Var(string): t<var>
+    | FVar(string): t<var>
     | FDna(fdna<'a>): t<'a>
 
   and expr<'a> = array<t<'a>>
@@ -27,6 +28,16 @@ module FORM = {
 
   // let none: expr<con> = []
   // let mark: t<con> = Mark(none)
+
+  // !! experimental accessors !!
+  let mark = (expr) => Mark(expr)
+  let cVal = (c) => CVal(c)
+  let seqRE = (sig, seq) => SeqRE(sig, seq)
+  let uncl = (lbl) => Uncl(lbl)
+
+  let fVar = (lbl) => FVar(lbl)
+  let fDna = (fdna) => FDna(fdna)
+  // ---
 
 
   let showLabel_Var = (lbl) =>
@@ -43,7 +54,7 @@ module FORM = {
     | SeqRE(reSig, seq) => `{${seq->showSeq(~sortNMUI=sortNMUI)} ${reSig->SeqRE.showSig}}`
     | Uncl(lbl) => lbl->showLabel_Uncl
 
-    | Var(lbl)  => lbl->showLabel_Var
+    | FVar(lbl)  => lbl->showLabel_Var
     | FDna(fdna) => "[" ++ fdna->showFdna(~sortNMUI=sortNMUI) ++ "]"
     }
   and showExpr: type any. (~sortNMUI: bool=?, expr<any>) => _
@@ -181,7 +192,7 @@ module FVAR = {
 
     let _getVars = (vars, form) =>
       switch form {
-      | FORM.Var(lbl) => vars->Belt.Set.add(lbl) // vars->Js.Array2.concat([lbl])
+      | FORM.FVar(lbl) => vars->Belt.Set.add(lbl) // vars->Js.Array2.concat([lbl])
       | _ => vars
       }
     let init = Belt.Set.make(~id=module(VarCmp))
@@ -196,7 +207,7 @@ module FVAR = {
   let countVars = (expr: expr) => {
     let _countVars = (n, form) =>
       switch form {
-      | FORM.Var(_) => n + 1
+      | FORM.FVar(_) => n + 1
       | _ => n
       }
     expr->reduce(_countVars, 0)
