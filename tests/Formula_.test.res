@@ -1,6 +1,7 @@
 open Zora
 
 open Formula
+open Calc
 
 
 let fml_samples: array<{"fml": string, "tks": Formula.Lexer.tokenStream}> = [
@@ -14,19 +15,25 @@ let fml_samples: array<{"fml": string, "tks": Formula.Lexer.tokenStream}> = [
     "tks": list{Token.Mark(Open),Const(N),Mark(Open),Mark(Open),Const(U),
                 Mark(Close),Const(I),Mark(Close),Mark(Close),Const(M)}
   },
-  { "fml": `"a"" süßer_apfel b"(/b_1 n_+2 /"42/4")")"`,
+  { "fml": `aμ_2b_n" süßer_apfel b"(/b_1 n_+2 /"42/4")")"`,
     "tks": list{
-      Token.VarStr(Label(`a`)),
-      VarStr( LabelSub({lbl: ` süßer`, sub: `apfel b`}) ),
+      Token.Var(`a`), Var(`μ_2`), Var(`b_n`),
+      Var(` süßer_apfel b`),
       Mark(Open),
-      Uncl( LabelSub({lbl: `b`, sub: `1 n_+2 `}) ),
-      VarStr(Label(`42/4`)),
+      Uncl(`b_1 n_+2 `),
+      Var(`42/4`),
       Mark(Close),
-      VarStr(Label(`)`)),
+      Var(`)`),
       }
   },
   { "fml": `"_"/a_/"_a"`,
-    "tks": list{Token.VarStr(Label(`_`)),Uncl(Label(`a_`)),VarStr(Label(`_a`))}
+    "tks": list{Token.Var(`_`),Uncl(`a_`),Var(`_a`)}
+  },
+  { "fml": `::0123`,
+    "tks": list{Token.DNA({sortNMUI: true, code: DNA.fromIntArrUnsafe(~sortNMUI=true, [0,1,2,3]) })}
+  },
+  { "fml": `⁘0123`,
+    "tks": list{Token.DNA({sortNMUI: false, code: DNA.fromIntArrUnsafe(~sortNMUI=false, [0,1,2,3]) })}
   },
 ]
 let fml_invalid: array<{"fml": string, "exn": string}> = [
@@ -48,6 +55,15 @@ let fml_invalid: array<{"fml": string, "exn": string}> = [
   { "fml": `"""`,
     "exn": `Label should not be empty!`
   },
+  { "fml": `aA`,
+    "exn": `Unable to interpret 'A'.`
+  },
+  { "fml": `0a`,
+    "exn": `Unable to interpret '0'.`
+  },
+  // { "fml": `⁘0123`,
+  //   "exn": `Unable to interpret '0'.`
+  // },
 ]
 
 zoraBlock(`Testing Lexer.scan`, t => {

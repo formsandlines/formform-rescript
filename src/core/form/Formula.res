@@ -1,57 +1,64 @@
 module Token = {
   type parens = Open | Close
-  type label = Label(string) | LabelSub({lbl: string, sub: string})
-  type const = N | U | I | M
+  type const = Calc.Const.t // N | U | I | M
   type constN = C0 | C1 | C2 | C3
-  type mn = RecInstr | RecIdent
-  type par = Even | Odd
-  type fdnaCode = NMUI | NUIM
+  type par = Helper.Parity.t // Even | Odd
 
   type t =
     | Mark(parens)  // (…)
     | SeqRE(parens) // {…}
-    | List(parens)  // […]
+    // | List(parens)  // […]
     | Const(const)  // N | U | I | M
     | ConstN(constN)  // 0 | 1 | 2 | 3
-    | VarChar(label) // x | x_n
-    | VarStr(label) // "someX" | "someX_n"
-    | Uncl(label) // /someU/ | /someU_n"
-    | SeqRE_sig_mn(mn) // @ | @~
-    | SeqRE_sig_step // .
-    | SeqRE_sig_unmarked // _
+    | Var(string) // x | x_n | "someX" | "someX_n"
+    | Uncl(string) // /someU/ | /someU_n"
+    | SeqRE_sig(SeqRE.sig)
+    // | SeqRE_sig_mn(mn) // @ | @~
+    // | SeqRE_sig_step // .
+    // | SeqRE_sig_unmarked // _
     | OptSep // |
     | SeqSep // ,
     | SeqRE_par(par) // 2r | 2r+1
     | SeqRE_open // open
     | SeqRE_alt // alt
-    | Fdna_code(fdnaCode) // :: | ⁘
-    | Fdna_sep // .
-    | Char(string) // ?
+    | DNA({sortNMUI: bool, code: DNA.t}) // :: | ⁘
+    | ExprSep // .
+    | VarList(array<string>)
+    // | Char(string) // ?
 
   let toString = (token: t): string => switch token {
   | Mark(Open)  => "(" | Mark(Close)  => ")"
   | SeqRE(Open) => "{" | SeqRE(Close) => "}"
-  | List(Open)  => "[" | List(Close)  => "]"
+  // | List(Open)  => "[" | List(Close)  => "]"
 
-  | Const(N)   => "N" | Const(U)   => "U" | Const(I)   => "I" | Const(M)   => "M"
+  | Const(c) => c->Calc.Const.show
+  // | Const(N)   => "N" | Const(U)   => "U" | Const(I)   => "I" | Const(M)   => "M"
   | ConstN(C0) => "0" | ConstN(C1) => "1" | ConstN(C2) => "2" | ConstN(C3) => "3"
 
-  | VarChar(Label(lbl)) =>     lbl    | VarChar(LabelSub(r)) =>  `${r.lbl}_${r.sub}`
-  | VarStr(Label(lbl))  => `"${lbl}"` | VarStr(LabelSub(r))  => `"${r.lbl}_${r.sub}"`
-  | Uncl(Label(lbl))    => `/${lbl}/` | Uncl(LabelSub(r))    => `/${r.lbl}_${r.sub}/`
+  | Var(lbl) => lbl->Js.String2.length > 1 ? `"${lbl}"` : lbl
+  | Uncl(lbl) => `/${lbl}/`
 
-  | SeqRE_sig_mn(RecInstr) => "@" | SeqRE_sig_mn(RecIdent) => "@~"
-  | SeqRE_sig_step => "." | SeqRE_sig_unmarked => "_"
+  // | SeqRE_sig_mn(RecInstr) => "@" | SeqRE_sig_mn(RecIdent) => "@~"
+  // | SeqRE_sig_step => "." | SeqRE_sig_unmarked => "_"
+  | SeqRE_sig(sig) => sig->SeqRE.showSig
 
   | OptSep => "|" | SeqSep => ","
-  | SeqRE_par(Even) => "2r" | SeqRE_par(Odd) => "2r+1"
+  | SeqRE_par(Even) => "2r" | SeqRE_par(Odd) => "2r+1" | SeqRE_par(Any) => ""
   | SeqRE_open => "open" | SeqRE_alt => "alt"
 
-  | Fdna_code(NMUI) => "::" | Fdna_code(NUIM) => "⁘"
-  | Fdna_sep => "."
+  | DNA({sortNMUI, code}) => DNA.show(~sortNMUI=(sortNMUI), code)
+  | ExprSep => "."
+  | VarList(vars) => "[" ++ vars->Js.Array2.joinWith(",") ++ "]"
 
-  | Char(str) => str
+  // | Char(str) => str
   }
+
+  let lblClass_unquoted = [`a`,`b`,`c`,`d`,`e`,`f`,`g`,`h`,`i`,`j`,`k`,`l`,`m`,`n`,`o`,`p`,`q`,`r`,`s`,`t`,`u`,`v`,`w`,`x`,`y`,`z`,`α`,`β`,`γ`,`δ`,`ε`,`ζ`,`η`,`θ`,`ι`,`κ`,`λ`,`μ`,`ν`,`ξ`,`ο`,`π`,`ρ`,`ς`,`σ`,`τ`,`υ`,`φ`,`χ`,`ψ`,`ω`]
+  let idxClass_unquoted = [`0`,`1`,`2`,`3`,`4`,`5`,`6`,`7`,`8`,`9`]->Belt.Array.concat(lblClass_unquoted)
+
+  // let lblClass_unquoted = (`abcdefghijklmnopqrstuvwxyzαβγδεζηθικλμνξοπρςστυφχψω`)->Js.String2.split("")
+  // let singleVarClass = `[a-zß-öø-ÿά-ώ]` // āăąćĉċčďđēĕėęěĝğġģĥħĩīĭįıĳĵķĸĺļľŀłńņňŉŋōŏőœŕŗřśŝşšţťŧũūŭůűųŵŷźżžſ `[a-zA-ZÀ-ÖØ-öø-ÿĀ-ʯͿΑ-ԯ\udc00-\udfff]` // RegExp class
+  // let singleVarClass_RegExp = singleVarClass->Js.Re.fromStringWithFlags(~flags="u")
 
 }
 
@@ -62,22 +69,7 @@ module Lexer = {
   // type result = Belt.Result.t<tokenStream, lexError>
   // let del = 
 
-  let splitSubscript = (str): (string, option<string>) => {
-    let parts = str->Js.String2.split("_")
-    switch parts {
-    // | [] => raise(LexError({msg: "Label should not be empty!"}))
-    | [lbl] => (lbl, None)
-    | [lbl, ""] => (lbl ++ "_", None)
-    | ["", sub] => ("_" ++ sub, None)
-    | [lbl, sub] => (lbl, Some(sub))
-    | _ => (parts[0], Some(parts
-        ->Belt.Array.sliceToEnd(1)
-        ->Js.Array2.joinWith("_"))
-        )
-    }
-  }
-
-  let scanLabel = (~delim: string, stream: list<string>): (Token.label, list<string>) => {
+  let scanLabel = (~delim: string, stream: list<string>): (string, list<string>) => {
 
     let rec _scan = (stream: list<string>, lbl): (string, list<string>) =>
       switch stream {
@@ -88,15 +80,49 @@ module Lexer = {
     
     switch stream->_scan("") {
     | ("", _) => raise(LexError({msg: `Label should not be empty!`}))
-    | (lbl, rest) if lbl->Js.String2.length < 2 => (Label(lbl), rest)
-    | (str, rest) => {
-        // ? does it make sense to parse subscripts early if they have no semantics?
-        let (lbl, maybeSub) = str->splitSubscript
-        switch maybeSub {
-        | Some(sub) => ( LabelSub({lbl: lbl, sub: sub}), rest )
-        | None => ( Label(lbl), rest )
+    | (lbl, rest) => (lbl, rest)
+    }
+  }
+  
+  let scanList = (~delim: string, stream: list<string>): (array<string>, list<string>) => {
+
+    let rec _scan = (stream: list<string>, arr): (array<string>, list<string>) =>
+      switch stream {
+      | list{} => raise(LexError({msg: `Closing '${delim}' is missing!`}))
+      | list{" ", ...r} => r->_scan(arr) // ignore whitespace
+      | list{d, ...r} if d == delim => (arr, r)
+      | list{",", ...r} => r->_scan(arr->Belt.Array.concat([""]))
+      | list{str, ...r} => {
+          let i = Belt.Array.length(arr)-1
+          arr[i] = arr[i] ++ str
+          r->_scan(arr)
         }
       }
+    
+    switch stream->_scan([""]) {
+    | ([""], _) => raise(LexError({msg: `List should not be empty!`}))
+    | (arr, rest) => (arr, rest)
+    }
+  }
+
+  let scanDNA = (~sortNMUI: bool, stream: list<string>): (DNA.t, list<string>) => {
+    let conv = (n) => n->Calc.Const.fromInt(~sortNMUI=sortNMUI)->Belt.Option.getUnsafe
+
+    let rec _scan = (stream: list<string>, arr): (array<Calc.Const.t>, list<string>) =>
+      switch stream {
+      // | list{} => raise(LexError({msg: ``}))
+      | list{" ", ...r} => r->_scan(arr) // ? ignore whitespace
+      | list{"0", ...r} => r->_scan(arr->Belt.Array.concat([0->conv]))
+      | list{"1", ...r} => r->_scan(arr->Belt.Array.concat([1->conv]))
+      | list{"2", ...r} => r->_scan(arr->Belt.Array.concat([2->conv]))
+      | list{"3", ...r} => r->_scan(arr->Belt.Array.concat([3->conv]))
+      | r => (arr, r)
+      }
+
+    let (arr, rest) = stream->_scan([]) 
+    switch arr->DNA.make {
+    | Some(dna) => (dna, rest)
+    | None => raise(LexError({msg: `Invalid formDNA!`}))
     }
   }
 
@@ -109,27 +135,90 @@ module Lexer = {
     | list{"(", ...r} => list{ Mark(Open), ...scanFml(r) }
     | list{")", ...r} => list{ Mark(Close), ...scanFml(r) }
 
+    | list{"{", ...r} => list{ SeqRE(Open), ...scanFml(r) }
+    | list{"}", ...r} => list{ SeqRE(Close), ...scanFml(r) }
+
+    | list{"2","r","|", ...r}         => list{ SeqRE_par(Even), OptSep, ...scanFml(r) }
+    | list{"2","r","+","1","|", ...r} => list{ SeqRE_par(Odd), OptSep, ...scanFml(r) }
+    | list{"a","l","t","|", ...r}     => list{ SeqRE_alt, OptSep, ...scanFml(r) }
+    | list{"o","p","e","n","|", ...r} => list{ SeqRE_open, OptSep, ...scanFml(r) }
+
     | list{"N", ...r} => list{ Const(N), ...scanFml(r) }
     | list{"U", ...r} => list{ Const(U), ...scanFml(r) }
     | list{"I", ...r} => list{ Const(I), ...scanFml(r) }
     | list{"M", ...r} => list{ Const(M), ...scanFml(r) }
 
-    | list{"0", ...r} => list{ ConstN(C0), ...scanFml(r) }
-    | list{"1", ...r} => list{ ConstN(C1), ...scanFml(r) }
-    | list{"2", ...r} => list{ ConstN(C2), ...scanFml(r) }
-    | list{"3", ...r} => list{ ConstN(C3), ...scanFml(r) }
+    | list{".",".","@","~",".","_", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Odd, unmarked: true, interpr: RecIdent}), ...scanFml(r) }
+    | list{".",".","@","~",".", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Odd, unmarked: false, interpr: RecIdent}), ...scanFml(r) }
+    | list{".",".","@","~","_", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Even, unmarked: true, interpr: RecIdent}), ...scanFml(r) }
+    | list{".",".","@","~", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Even, unmarked: false, interpr: RecIdent}), ...scanFml(r) }
+    | list{"@","~","_", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Any, unmarked: true, interpr: RecIdent}), ...scanFml(r) }
+    | list{"@","~", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Any, unmarked: false, interpr: RecIdent}), ...scanFml(r) }
 
-    | list{`"`, ...r} => {
+    | list{".",".","@",".","_", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Odd, unmarked: true, interpr: RecInstr}), ...scanFml(r) }
+    | list{".",".","@",".", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Odd, unmarked: false, interpr: RecInstr}), ...scanFml(r) }
+    | list{".",".","@","_", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Even, unmarked: true, interpr: RecInstr}), ...scanFml(r) }
+    | list{".",".","@", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Even, unmarked: false, interpr: RecInstr}), ...scanFml(r) }
+    | list{"@","_", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Any, unmarked: true, interpr: RecInstr}), ...scanFml(r) }
+    | list{"@", ...r} =>
+        list{ SeqRE_sig({reEntryPar: Any, unmarked: false, interpr: RecInstr}), ...scanFml(r) }
+
+    | list{",", ...r} => list{ SeqSep, ...scanFml(r) }
+
+    | list{":",":", ...r} => {
+        let (dna, r') = r->scanDNA(~sortNMUI=true)
+        list{ DNA({sortNMUI: true, code: dna}), ...scanFml(r') }
+      }
+    | list{unicode, ...r} if unicode == `⁘` => {
+        let (dna, r') = r->scanDNA(~sortNMUI=false)
+        list{ DNA({sortNMUI: false, code: dna}), ...scanFml(r') }
+      }
+    | list{`.`,"[", ...r} => {
+        let (arr, r') = r->scanList(~delim=`,`)
+        list{ ExprSep, VarList(arr), ...scanFml(r') }
+      }
+
+    | list{`"`, ...r} => {  // ! needs also to scan single-letter vars without ""
         let (lbl, r') = r->scanLabel(~delim=`"`)
-        list{ VarStr(lbl), ...scanFml(r') }
+        list{ Var(lbl), ...scanFml(r') }
       }
     | list{`/`, ...r} => {
         let (lbl, r') = r->scanLabel(~delim=`/`)
         list{ Uncl(lbl), ...scanFml(r') }
       }
-    | list{str, ...r} => list{ Char(str), ...scanFml(r) }
+    | list{lbl,"_",idx, ...r}
+        if lblClass_unquoted->Js.Array2.includes(lbl)
+        && idxClass_unquoted->Js.Array2.includes(idx) => list{ Var(lbl++"_"++idx), ...scanFml(r) }
+    | list{lbl, ...r}
+        if lblClass_unquoted->Js.Array2.includes(lbl) => list{ Var(lbl), ...scanFml(r) }
+    // | list{lbl, ...r} if singleVarClass_RegExp->Js.Re.test_(lbl) => list{ Var(lbl), ...scanFml(r) }
+    | list{str, ..._} => raise(LexError({msg: `Unable to interpret '${str}'.`}))
+        // list{ Char(str), ...scanFml(r) }
+      // }
     }
   }
+  // and scanSeqRE = (stream: list<string>): tokenStream => {
+  //   open Token
+  //   // check if options
+  //   // check if sig
+
+  //   switch stream {
+  //   | list{} => list{}
+  //   // | list{"{", ...r} => list{ SeqRE(Open), ...scanSeqRE(r) }
+  //   | list{"}", ...r} => list{ SeqRE(Close), ...scanFml(r) }
+  //   }
+  // }
 
   let scan = (input: string): tokenStream =>
     input->Js.String2.split("")->Belt.List.fromArray->scanFml
