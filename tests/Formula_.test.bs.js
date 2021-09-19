@@ -2,10 +2,11 @@
 
 import * as Zora from "zora";
 import * as DNA$Formform from "../src/core/calc/DNA.bs.js";
+import * as Expr$Formform from "../src/core/form/Expr.bs.js";
 import * as Formula$Formform from "../src/core/form/Formula.bs.js";
 import * as Caml_js_exceptions from "rescript/lib/es6/caml_js_exceptions.js";
 
-var fml_samples = [
+var lex_samples = [
   {
     fml: "",
     tks: /* [] */0
@@ -106,22 +107,22 @@ var fml_samples = [
     fml: "aμ_2b_n\" süßer_apfel b\"(/b_1 n_+2 /\"42/4\")\")\"",
     tks: {
       hd: {
-        TAG: /* Var */4,
+        TAG: /* Var */3,
         _0: "a"
       },
       tl: {
         hd: {
-          TAG: /* Var */4,
+          TAG: /* Var */3,
           _0: "μ_2"
         },
         tl: {
           hd: {
-            TAG: /* Var */4,
+            TAG: /* Var */3,
             _0: "b_n"
           },
           tl: {
             hd: {
-              TAG: /* Var */4,
+              TAG: /* Var */3,
               _0: " süßer_apfel b"
             },
             tl: {
@@ -131,12 +132,12 @@ var fml_samples = [
               },
               tl: {
                 hd: {
-                  TAG: /* Uncl */5,
+                  TAG: /* Uncl */4,
                   _0: "b_1 n_+2 "
                 },
                 tl: {
                   hd: {
-                    TAG: /* Var */4,
+                    TAG: /* Var */3,
                     _0: "42/4"
                   },
                   tl: {
@@ -146,7 +147,7 @@ var fml_samples = [
                     },
                     tl: {
                       hd: {
-                        TAG: /* Var */4,
+                        TAG: /* Var */3,
                         _0: ")"
                       },
                       tl: /* [] */0
@@ -164,17 +165,17 @@ var fml_samples = [
     fml: "\"_\"/a_/\"_a\"",
     tks: {
       hd: {
-        TAG: /* Var */4,
+        TAG: /* Var */3,
         _0: "_"
       },
       tl: {
         hd: {
-          TAG: /* Uncl */5,
+          TAG: /* Uncl */4,
           _0: "a_"
         },
         tl: {
           hd: {
-            TAG: /* Var */4,
+            TAG: /* Var */3,
             _0: "_a"
           },
           tl: /* [] */0
@@ -183,10 +184,215 @@ var fml_samples = [
     }
   },
   {
+    fml: "2r+1}  open2r| {alt",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_par */6,
+        _0: /* Odd */1
+      },
+      tl: {
+        hd: {
+          TAG: /* SeqRE */1,
+          _0: /* Close */1
+        },
+        tl: {
+          hd: /* SeqRE_open */2,
+          tl: {
+            hd: {
+              TAG: /* SeqRE_par */6,
+              _0: /* Even */0
+            },
+            tl: {
+              hd: /* OptSep */0,
+              tl: {
+                hd: {
+                  TAG: /* SeqRE */1,
+                  _0: /* Open */0
+                },
+                tl: {
+                  hd: /* SeqRE_alt */3,
+                  tl: /* [] */0
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    fml: "..@~._",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Odd */1,
+          unmarked: true,
+          interpr: /* RecIdent */1
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "..@~.",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Odd */1,
+          unmarked: false,
+          interpr: /* RecIdent */1
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "..@~_",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Even */0,
+          unmarked: true,
+          interpr: /* RecIdent */1
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "..@~",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Even */0,
+          unmarked: false,
+          interpr: /* RecIdent */1
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "@~_",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: true,
+          interpr: /* RecIdent */1
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "@~",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecIdent */1
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "..@._",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Odd */1,
+          unmarked: true,
+          interpr: /* RecInstr */0
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "..@.",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Odd */1,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "..@_",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Even */0,
+          unmarked: true,
+          interpr: /* RecInstr */0
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "..@",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Even */0,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "@_",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: true,
+          interpr: /* RecInstr */0
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
+    fml: "@",
+    tks: {
+      hd: {
+        TAG: /* SeqRE_sig */5,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        }
+      },
+      tl: /* [] */0
+    }
+  },
+  {
     fml: "::0123",
     tks: {
       hd: {
-        TAG: /* DNA */8,
+        TAG: /* DNA */7,
         sortNMUI: true,
         code: DNA$Formform.fromIntArrUnsafe(true, [
               0,
@@ -199,24 +405,117 @@ var fml_samples = [
     }
   },
   {
-    fml: "⁘0123",
+    fml: ".[η,b_1].[ ].[\",\"]",
+    tks: {
+      hd: /* ExprSep */4,
+      tl: {
+        hd: {
+          TAG: /* VarList */8,
+          _0: [
+            "η",
+            "b_1"
+          ]
+        },
+        tl: {
+          hd: /* ExprSep */4,
+          tl: {
+            hd: {
+              TAG: /* VarList */8,
+              _0: []
+            },
+            tl: {
+              hd: /* ExprSep */4,
+              tl: {
+                hd: {
+                  TAG: /* VarList */8,
+                  _0: [","]
+                },
+                tl: /* [] */0
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    fml: "a .[\"$\",\"φτ2\",c]  ⁘0123",
     tks: {
       hd: {
-        TAG: /* DNA */8,
-        sortNMUI: false,
-        code: DNA$Formform.fromIntArrUnsafe(false, [
-              0,
-              1,
-              2,
-              3
-            ])
+        TAG: /* Var */3,
+        _0: "a"
       },
-      tl: /* [] */0
+      tl: {
+        hd: /* ExprSep */4,
+        tl: {
+          hd: {
+            TAG: /* VarList */8,
+            _0: [
+              "$",
+              "φτ2",
+              "c"
+            ]
+          },
+          tl: {
+            hd: {
+              TAG: /* DNA */7,
+              sortNMUI: false,
+              code: DNA$Formform.fromIntArrUnsafe(false, [
+                    0,
+                    1,
+                    2,
+                    3
+                  ])
+            },
+            tl: /* [] */0
+          }
+        }
+      }
+    }
+  },
+  {
+    fml: ")⁘0123 1022 1023 3333 (",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Close */1
+      },
+      tl: {
+        hd: {
+          TAG: /* DNA */7,
+          sortNMUI: false,
+          code: DNA$Formform.fromIntArrUnsafe(false, [
+                0,
+                1,
+                2,
+                3,
+                1,
+                0,
+                2,
+                2,
+                1,
+                0,
+                2,
+                3,
+                3,
+                3,
+                3,
+                3
+              ])
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Open */0
+          },
+          tl: /* [] */0
+        }
+      }
     }
   }
 ];
 
-var fml_invalid = [
+var lex_invalid = [
   {
     fml: "\"",
     exn: "Closing '\"' is missing!"
@@ -248,21 +547,77 @@ var fml_invalid = [
   {
     fml: "0a",
     exn: "Unable to interpret '0'."
+  },
+  {
+    fml: "]",
+    exn: "Unable to interpret ']'."
+  },
+  {
+    fml: "[",
+    exn: "Closing ']' is missing!"
+  },
+  {
+    fml: ".[a",
+    exn: "Expected ',' or ']'."
+  },
+  {
+    fml: ".[ab]",
+    exn: "Expected ',' or ']'."
+  },
+  {
+    fml: ".[ \"ab\"c]",
+    exn: "Expected ',' or ']'."
+  },
+  {
+    fml: ".[ \"ab\",]",
+    exn: "comma-separated list item must not be empty!"
+  },
+  {
+    fml: ".[,]",
+    exn: "Unable to interpret ','."
+  },
+  {
+    fml: ":0123",
+    exn: "Unable to interpret ':'."
+  },
+  {
+    fml: "0123",
+    exn: "Unable to interpret '0'."
+  },
+  {
+    fml: "⁘0423",
+    exn: "Unable to interpret '4'."
+  },
+  {
+    fml: "⁘01",
+    exn: "Invalid formDNA!"
   }
 ];
 
 Zora.test("Testing Lexer.scan", (function (t) {
-        fml_samples.forEach(function (sample) {
+        lex_samples.forEach(function (sample) {
               t.test("given a formula '" + sample.fml + "'", (function (t) {
                       var input = sample.fml;
-                      var actual = Formula$Formform.Lexer.scan(input);
-                      var expected = sample.tks;
-                      t.equal(actual, expected, "should be a token stream");
-                      
+                      try {
+                        var actual = Formula$Formform.Lexer.scan(input);
+                        var expected = sample.tks;
+                        t.equal(actual, expected, "should be a token stream");
+                        return ;
+                      }
+                      catch (raw_e){
+                        var e = Caml_js_exceptions.internalToOCamlException(raw_e);
+                        if (e.RE_EXN_ID === Formula$Formform.Lexer.LexError) {
+                          t.fail(e.msg);
+                        } else {
+                          console.log(e);
+                          t.fail("Unknown Error!");
+                        }
+                        return ;
+                      }
                     }));
               
             });
-        fml_invalid.forEach(function (sample) {
+        lex_invalid.forEach(function (sample) {
               t.test("given an invalid formula '" + sample.fml + "'", (function (t) {
                       var input = sample.fml;
                       var expected = sample.exn;
@@ -287,9 +642,1365 @@ Zora.test("Testing Lexer.scan", (function (t) {
         
       }));
 
+var parse_samples = [
+  {
+    fml: "",
+    tks: /* [] */0,
+    expr: []
+  },
+  {
+    fml: "()",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Close */1
+        },
+        tl: /* [] */0
+      }
+    },
+    expr: [{
+        TAG: /* Mark */0,
+        _0: []
+      }]
+  },
+  {
+    fml: "(())",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Open */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Close */1
+          },
+          tl: {
+            hd: {
+              TAG: /* Mark */0,
+              _0: /* Close */1
+            },
+            tl: /* [] */0
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* Mark */0,
+        _0: [{
+            TAG: /* Mark */0,
+            _0: []
+          }]
+      }]
+  },
+  {
+    fml: "(()(()))",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Open */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Close */1
+          },
+          tl: {
+            hd: {
+              TAG: /* Mark */0,
+              _0: /* Open */0
+            },
+            tl: {
+              hd: {
+                TAG: /* Mark */0,
+                _0: /* Open */0
+              },
+              tl: {
+                hd: {
+                  TAG: /* Mark */0,
+                  _0: /* Close */1
+                },
+                tl: {
+                  hd: {
+                    TAG: /* Mark */0,
+                    _0: /* Close */1
+                  },
+                  tl: {
+                    hd: {
+                      TAG: /* Mark */0,
+                      _0: /* Close */1
+                    },
+                    tl: /* [] */0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* Mark */0,
+        _0: [
+          {
+            TAG: /* Mark */0,
+            _0: []
+          },
+          {
+            TAG: /* Mark */0,
+            _0: [{
+                TAG: /* Mark */0,
+                _0: []
+              }]
+          }
+        ]
+      }]
+  },
+  {
+    fml: "(N(UI))M",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Const */2,
+          _0: /* N */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Open */0
+          },
+          tl: {
+            hd: {
+              TAG: /* Const */2,
+              _0: /* U */1
+            },
+            tl: {
+              hd: {
+                TAG: /* Const */2,
+                _0: /* I */2
+              },
+              tl: {
+                hd: {
+                  TAG: /* Mark */0,
+                  _0: /* Close */1
+                },
+                tl: {
+                  hd: {
+                    TAG: /* Mark */0,
+                    _0: /* Close */1
+                  },
+                  tl: {
+                    hd: {
+                      TAG: /* Const */2,
+                      _0: /* M */3
+                    },
+                    tl: /* [] */0
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [
+      {
+        TAG: /* Mark */0,
+        _0: [
+          {
+            TAG: /* CVal */1,
+            _0: /* N */0
+          },
+          {
+            TAG: /* Mark */0,
+            _0: [
+              {
+                TAG: /* CVal */1,
+                _0: /* U */1
+              },
+              {
+                TAG: /* CVal */1,
+                _0: /* I */2
+              }
+            ]
+          }
+        ]
+      },
+      {
+        TAG: /* CVal */1,
+        _0: /* M */3
+      }
+    ]
+  },
+  {
+    fml: "{}",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* SeqRE */1,
+          _0: /* Close */1
+        },
+        tl: /* [] */0
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [],
+          tl: /* [] */0
+        }
+      }]
+  },
+  {
+    fml: "{ @ }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* SeqRE_sig */5,
+          _0: {
+            reEntryPar: /* Any */2,
+            unmarked: false,
+            interpr: /* RecInstr */0
+          }
+        },
+        tl: {
+          hd: {
+            TAG: /* SeqRE */1,
+            _0: /* Close */1
+          },
+          tl: /* [] */0
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [],
+          tl: /* [] */0
+        }
+      }]
+  },
+  {
+    fml: "{ ..@~._ a }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* SeqRE_sig */5,
+          _0: {
+            reEntryPar: /* Odd */1,
+            unmarked: true,
+            interpr: /* RecIdent */1
+          }
+        },
+        tl: {
+          hd: {
+            TAG: /* Var */3,
+            _0: "a"
+          },
+          tl: {
+            hd: {
+              TAG: /* SeqRE */1,
+              _0: /* Close */1
+            },
+            tl: /* [] */0
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Odd */1,
+          unmarked: true,
+          interpr: /* RecIdent */1
+        },
+        _1: {
+          hd: [{
+              TAG: /* FVar */4,
+              _0: "a"
+            }],
+          tl: /* [] */0
+        }
+      }]
+  },
+  {
+    fml: "{2r| }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* SeqRE_par */6,
+          _0: /* Even */0
+        },
+        tl: {
+          hd: /* OptSep */0,
+          tl: {
+            hd: {
+              TAG: /* SeqRE */1,
+              _0: /* Close */1
+            },
+            tl: /* [] */0
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Even */0,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [],
+          tl: /* [] */0
+        }
+      }]
+  },
+  {
+    fml: "{alt|2r+1| }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: /* SeqRE_alt */3,
+        tl: {
+          hd: /* OptSep */0,
+          tl: {
+            hd: {
+              TAG: /* SeqRE_par */6,
+              _0: /* Odd */1
+            },
+            tl: {
+              hd: /* OptSep */0,
+              tl: {
+                hd: {
+                  TAG: /* SeqRE */1,
+                  _0: /* Close */1
+                },
+                tl: /* [] */0
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Odd */1,
+          unmarked: false,
+          interpr: /* RecIdent */1
+        },
+        _1: {
+          hd: [],
+          tl: /* [] */0
+        }
+      }]
+  },
+  {
+    fml: "{open|2r|alt| a}",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: /* SeqRE_open */2,
+        tl: {
+          hd: /* OptSep */0,
+          tl: {
+            hd: {
+              TAG: /* SeqRE_par */6,
+              _0: /* Even */0
+            },
+            tl: {
+              hd: /* OptSep */0,
+              tl: {
+                hd: /* SeqRE_alt */3,
+                tl: {
+                  hd: /* OptSep */0,
+                  tl: {
+                    hd: {
+                      TAG: /* Var */3,
+                      _0: "a"
+                    },
+                    tl: {
+                      hd: {
+                        TAG: /* SeqRE */1,
+                        _0: /* Close */1
+                      },
+                      tl: /* [] */0
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Even */0,
+          unmarked: true,
+          interpr: /* RecIdent */1
+        },
+        _1: {
+          hd: [{
+              TAG: /* FVar */4,
+              _0: "a"
+            }],
+          tl: /* [] */0
+        }
+      }]
+  },
+  {
+    fml: "{,}",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: /* SeqSep */1,
+        tl: {
+          hd: {
+            TAG: /* SeqRE */1,
+            _0: /* Close */1
+          },
+          tl: /* [] */0
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [],
+          tl: {
+            hd: [],
+            tl: /* [] */0
+          }
+        }
+      }]
+  },
+  {
+    fml: "{ M }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Const */2,
+          _0: /* M */3
+        },
+        tl: {
+          hd: {
+            TAG: /* SeqRE */1,
+            _0: /* Close */1
+          },
+          tl: /* [] */0
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [{
+              TAG: /* CVal */1,
+              _0: /* M */3
+            }],
+          tl: /* [] */0
+        }
+      }]
+  },
+  {
+    fml: "{ M(U) } N",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Const */2,
+          _0: /* M */3
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Open */0
+          },
+          tl: {
+            hd: {
+              TAG: /* Const */2,
+              _0: /* U */1
+            },
+            tl: {
+              hd: {
+                TAG: /* Mark */0,
+                _0: /* Close */1
+              },
+              tl: {
+                hd: {
+                  TAG: /* SeqRE */1,
+                  _0: /* Close */1
+                },
+                tl: {
+                  hd: {
+                    TAG: /* Const */2,
+                    _0: /* N */0
+                  },
+                  tl: /* [] */0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [
+      {
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [
+            {
+              TAG: /* CVal */1,
+              _0: /* M */3
+            },
+            {
+              TAG: /* Mark */0,
+              _0: [{
+                  TAG: /* CVal */1,
+                  _0: /* U */1
+                }]
+            }
+          ],
+          tl: /* [] */0
+        }
+      },
+      {
+        TAG: /* CVal */1,
+        _0: /* N */0
+      }
+    ]
+  },
+  {
+    fml: "{ M, U }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Const */2,
+          _0: /* M */3
+        },
+        tl: {
+          hd: /* SeqSep */1,
+          tl: {
+            hd: {
+              TAG: /* Const */2,
+              _0: /* U */1
+            },
+            tl: {
+              hd: {
+                TAG: /* SeqRE */1,
+                _0: /* Close */1
+              },
+              tl: /* [] */0
+            }
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [{
+              TAG: /* CVal */1,
+              _0: /* U */1
+            }],
+          tl: {
+            hd: [{
+                TAG: /* CVal */1,
+                _0: /* M */3
+              }],
+            tl: /* [] */0
+          }
+        }
+      }]
+  },
+  {
+    fml: "{ (), U }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Open */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Close */1
+          },
+          tl: {
+            hd: /* SeqSep */1,
+            tl: {
+              hd: {
+                TAG: /* Const */2,
+                _0: /* U */1
+              },
+              tl: {
+                hd: {
+                  TAG: /* SeqRE */1,
+                  _0: /* Close */1
+                },
+                tl: /* [] */0
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [{
+              TAG: /* CVal */1,
+              _0: /* U */1
+            }],
+          tl: {
+            hd: [{
+                TAG: /* Mark */0,
+                _0: []
+              }],
+            tl: /* [] */0
+          }
+        }
+      }]
+  },
+  {
+    fml: "{ (()), U, {} }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Open */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Open */0
+          },
+          tl: {
+            hd: {
+              TAG: /* Mark */0,
+              _0: /* Close */1
+            },
+            tl: {
+              hd: {
+                TAG: /* Mark */0,
+                _0: /* Close */1
+              },
+              tl: {
+                hd: /* SeqSep */1,
+                tl: {
+                  hd: {
+                    TAG: /* Const */2,
+                    _0: /* U */1
+                  },
+                  tl: {
+                    hd: /* SeqSep */1,
+                    tl: {
+                      hd: {
+                        TAG: /* SeqRE */1,
+                        _0: /* Open */0
+                      },
+                      tl: {
+                        hd: {
+                          TAG: /* SeqRE */1,
+                          _0: /* Close */1
+                        },
+                        tl: {
+                          hd: {
+                            TAG: /* SeqRE */1,
+                            _0: /* Close */1
+                          },
+                          tl: /* [] */0
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* SeqRE */2,
+        _0: {
+          reEntryPar: /* Any */2,
+          unmarked: false,
+          interpr: /* RecInstr */0
+        },
+        _1: {
+          hd: [{
+              TAG: /* SeqRE */2,
+              _0: {
+                reEntryPar: /* Any */2,
+                unmarked: false,
+                interpr: /* RecInstr */0
+              },
+              _1: {
+                hd: [],
+                tl: /* [] */0
+              }
+            }],
+          tl: {
+            hd: [{
+                TAG: /* CVal */1,
+                _0: /* U */1
+              }],
+            tl: {
+              hd: [{
+                  TAG: /* Mark */0,
+                  _0: [{
+                      TAG: /* Mark */0,
+                      _0: []
+                    }]
+                }],
+              tl: /* [] */0
+            }
+          }
+        }
+      }]
+  },
+  {
+    fml: "::0123",
+    tks: {
+      hd: {
+        TAG: /* DNA */7,
+        sortNMUI: true,
+        code: DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* M */3,
+              /* U */1,
+              /* I */2
+            ])
+      },
+      tl: /* [] */0
+    },
+    expr: [{
+        TAG: /* FDna */5,
+        _0: {
+          dna: DNA$Formform.makeUnsafe([
+                /* N */0,
+                /* M */3,
+                /* U */1,
+                /* I */2
+              ]),
+          form: undefined,
+          vars: undefined
+        }
+      }]
+  },
+  {
+    fml: "[a]⁘0123 I",
+    tks: {
+      hd: {
+        TAG: /* VarList */8,
+        _0: ["a"]
+      },
+      tl: {
+        hd: {
+          TAG: /* DNA */7,
+          sortNMUI: false,
+          code: DNA$Formform.makeUnsafe([
+                /* N */0,
+                /* U */1,
+                /* I */2,
+                /* M */3
+              ])
+        },
+        tl: {
+          hd: {
+            TAG: /* Const */2,
+            _0: /* I */2
+          },
+          tl: /* [] */0
+        }
+      }
+    },
+    expr: [
+      {
+        TAG: /* FDna */5,
+        _0: {
+          dna: DNA$Formform.makeUnsafe([
+                /* N */0,
+                /* U */1,
+                /* I */2,
+                /* M */3
+              ]),
+          form: undefined,
+          vars: ["a"]
+        }
+      },
+      {
+        TAG: /* CVal */1,
+        _0: /* I */2
+      }
+    ]
+  },
+  {
+    fml: "\"Äpfel\"(b).[\"Äpfel\",b]⁘0123",
+    tks: {
+      hd: {
+        TAG: /* Var */3,
+        _0: "Äpfel"
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Open */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Var */3,
+            _0: "b"
+          },
+          tl: {
+            hd: {
+              TAG: /* Mark */0,
+              _0: /* Close */1
+            },
+            tl: {
+              hd: /* ExprSep */4,
+              tl: {
+                hd: {
+                  TAG: /* VarList */8,
+                  _0: [
+                    "Äpfel",
+                    "b"
+                  ]
+                },
+                tl: {
+                  hd: {
+                    TAG: /* DNA */7,
+                    sortNMUI: false,
+                    code: DNA$Formform.makeUnsafe([
+                          /* N */0,
+                          /* U */1,
+                          /* I */2,
+                          /* M */3
+                        ])
+                  },
+                  tl: /* [] */0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [{
+        TAG: /* FDna */5,
+        _0: {
+          dna: DNA$Formform.makeUnsafe([
+                /* N */0,
+                /* U */1,
+                /* I */2,
+                /* M */3
+              ]),
+          form: [
+            {
+              TAG: /* FVar */4,
+              _0: "Äpfel"
+            },
+            {
+              TAG: /* Mark */0,
+              _0: [{
+                  TAG: /* FVar */4,
+                  _0: "b"
+                }]
+            }
+          ],
+          vars: [
+            "Äpfel",
+            "b"
+          ]
+        }
+      }]
+  },
+  {
+    fml: "U( a.[a]⁘0123 )",
+    tks: {
+      hd: {
+        TAG: /* Const */2,
+        _0: /* U */1
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Open */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Var */3,
+            _0: "a"
+          },
+          tl: {
+            hd: /* ExprSep */4,
+            tl: {
+              hd: {
+                TAG: /* VarList */8,
+                _0: ["a"]
+              },
+              tl: {
+                hd: {
+                  TAG: /* DNA */7,
+                  sortNMUI: false,
+                  code: DNA$Formform.makeUnsafe([
+                        /* N */0,
+                        /* U */1,
+                        /* I */2,
+                        /* M */3
+                      ])
+                },
+                tl: {
+                  hd: {
+                    TAG: /* Mark */0,
+                    _0: /* Close */1
+                  },
+                  tl: /* [] */0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    expr: [
+      {
+        TAG: /* CVal */1,
+        _0: /* U */1
+      },
+      {
+        TAG: /* Mark */0,
+        _0: [{
+            TAG: /* FDna */5,
+            _0: {
+              dna: DNA$Formform.makeUnsafe([
+                    /* N */0,
+                    /* U */1,
+                    /* I */2,
+                    /* M */3
+                  ]),
+              form: [{
+                  TAG: /* FVar */4,
+                  _0: "a"
+                }],
+              vars: ["a"]
+            }
+          }]
+      }
+    ]
+  }
+];
+
+var parse_invalid = [
+  {
+    fml: "(",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Open */0
+      },
+      tl: /* [] */0
+    },
+    exn: "Missing ')' to close FORM."
+  },
+  {
+    fml: ")",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Close */1
+      },
+      tl: /* [] */0
+    },
+    exn: "Missing '(' to open FORM."
+  },
+  {
+    fml: "())",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Mark */0,
+          _0: /* Close */1
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Close */1
+          },
+          tl: /* [] */0
+        }
+      }
+    },
+    exn: "Missing '(' to open FORM."
+  },
+  {
+    fml: "(N()",
+    tks: {
+      hd: {
+        TAG: /* Mark */0,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: {
+          TAG: /* Const */2,
+          _0: /* N */0
+        },
+        tl: {
+          hd: {
+            TAG: /* Mark */0,
+            _0: /* Open */0
+          },
+          tl: {
+            hd: {
+              TAG: /* Mark */0,
+              _0: /* Close */1
+            },
+            tl: /* [] */0
+          }
+        }
+      }
+    },
+    exn: "Missing ')' to close FORM."
+  },
+  {
+    fml: "{",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: /* [] */0
+    },
+    exn: "Missing '}' to close re-entry FORM."
+  },
+  {
+    fml: "}",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Close */1
+      },
+      tl: /* [] */0
+    },
+    exn: "Missing '{' to open re-entry FORM."
+  },
+  {
+    fml: ",",
+    tks: {
+      hd: /* SeqSep */1,
+      tl: /* [] */0
+    },
+    exn: "Invalid token ','!"
+  },
+  {
+    fml: "{alt }",
+    tks: {
+      hd: {
+        TAG: /* SeqRE */1,
+        _0: /* Open */0
+      },
+      tl: {
+        hd: /* SeqRE_alt */3,
+        tl: {
+          hd: {
+            TAG: /* SeqRE */1,
+            _0: /* Close */1
+          },
+          tl: /* [] */0
+        }
+      }
+    },
+    exn: "Invalid token 'alt'!"
+  },
+  {
+    fml: "[]",
+    tks: {
+      hd: {
+        TAG: /* VarList */8,
+        _0: []
+      },
+      tl: /* [] */0
+    },
+    exn: "Invalid token '[]'!"
+  },
+  {
+    fml: ".[]",
+    tks: {
+      hd: /* ExprSep */4,
+      tl: {
+        hd: {
+          TAG: /* VarList */8,
+          _0: []
+        },
+        tl: /* [] */0
+      }
+    },
+    exn: "Invalid token '.'!"
+  },
+  {
+    fml: "..[]⁘0123",
+    tks: {
+      hd: /* ExprSep */4,
+      tl: {
+        hd: /* ExprSep */4,
+        tl: {
+          hd: {
+            TAG: /* VarList */8,
+            _0: []
+          },
+          tl: {
+            hd: {
+              TAG: /* DNA */7,
+              sortNMUI: false,
+              code: DNA$Formform.makeUnsafe([
+                    /* N */0,
+                    /* U */1,
+                    /* I */2,
+                    /* M */3
+                  ])
+            },
+            tl: /* [] */0
+          }
+        }
+      }
+    },
+    exn: "Invalid token '.'!"
+  },
+  {
+    fml: "[].⁘0123",
+    tks: {
+      hd: {
+        TAG: /* VarList */8,
+        _0: []
+      },
+      tl: {
+        hd: /* ExprSep */4,
+        tl: {
+          hd: {
+            TAG: /* DNA */7,
+            sortNMUI: false,
+            code: DNA$Formform.makeUnsafe([
+                  /* N */0,
+                  /* U */1,
+                  /* I */2,
+                  /* M */3
+                ])
+          },
+          tl: /* [] */0
+        }
+      }
+    },
+    exn: "Invalid token '[]'!"
+  }
+];
+
+Zora.test("Testing Parser.parse", (function (t) {
+        parse_samples.forEach(function (sample) {
+              t.test("given a token stream for '" + sample.fml + "'", (function (t) {
+                      var input = sample.tks;
+                      try {
+                        var actual = Formula$Formform.Parser.parse(input);
+                        var expected = sample.expr;
+                        t.equal(actual, expected, "should be a FORM expression");
+                        return ;
+                      }
+                      catch (raw_e){
+                        var e = Caml_js_exceptions.internalToOCamlException(raw_e);
+                        if (e.RE_EXN_ID === Formula$Formform.Parser.ParseError) {
+                          t.fail(e.msg);
+                        } else {
+                          console.log(e);
+                          t.fail("Unknown Error!");
+                        }
+                        return ;
+                      }
+                    }));
+              
+            });
+        parse_invalid.forEach(function (sample) {
+              t.test("given an invalid token stream for '" + sample.fml + "'", (function (t) {
+                      var input = sample.tks;
+                      var expected = sample.exn;
+                      var expr;
+                      try {
+                        expr = Formula$Formform.Parser.parse(input);
+                      }
+                      catch (raw_exn){
+                        var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
+                        if (exn.RE_EXN_ID === Formula$Formform.Parser.ParseError) {
+                          var msg = exn.msg;
+                          t.equal(msg, expected, "should be \"" + expected + "\", but was \"" + msg + "\"");
+                          return ;
+                        }
+                        throw exn;
+                      }
+                      t.fail("expected error, but parse successful / result: " + Expr$Formform.FORM.show(undefined, expr));
+                      
+                    }));
+              
+            });
+        
+      }));
+
+Zora.test("Testing Formula.read", (function (t) {
+        parse_samples.forEach(function (sample) {
+              t.test("given a formula '" + sample.fml + "'", (function (t) {
+                      var input = sample.fml;
+                      try {
+                        var actual = Formula$Formform.read(input);
+                        var expected = sample.expr;
+                        t.equal(actual, expected, "should be a FORM expression");
+                        return ;
+                      }
+                      catch (raw_e){
+                        var e = Caml_js_exceptions.internalToOCamlException(raw_e);
+                        if (e.RE_EXN_ID === Formula$Formform.Lexer.LexError || e.RE_EXN_ID === Formula$Formform.Parser.ParseError) {
+                          t.fail(e.msg);
+                        } else {
+                          console.log(e);
+                          t.fail("Unknown Error!");
+                        }
+                        return ;
+                      }
+                    }));
+              
+            });
+        parse_invalid.forEach(function (sample) {
+              t.test("given an invalid formula '" + sample.fml + "'", (function (t) {
+                      var input = sample.fml;
+                      var expected = sample.exn;
+                      var expr;
+                      try {
+                        expr = Formula$Formform.read(input);
+                      }
+                      catch (raw_exn){
+                        var exn = Caml_js_exceptions.internalToOCamlException(raw_exn);
+                        if (exn.RE_EXN_ID === Formula$Formform.Parser.ParseError) {
+                          var msg = exn.msg;
+                          t.equal(msg, expected, "should be \"" + expected + "\", but was \"" + msg + "\"");
+                          return ;
+                        }
+                        throw exn;
+                      }
+                      t.fail("expected error, but parse successful / result: " + Expr$Formform.FORM.show(undefined, expr));
+                      
+                    }));
+              
+            });
+        
+      }));
+
 export {
-  fml_samples ,
-  fml_invalid ,
+  lex_samples ,
+  lex_invalid ,
+  parse_samples ,
+  parse_invalid ,
   
 }
-/* fml_samples Not a pure module */
+/* lex_samples Not a pure module */

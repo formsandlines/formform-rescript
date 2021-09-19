@@ -317,6 +317,8 @@ module Sequence = {
   Note that Sequence.t is a FORM implementation of the #NestToR structure in Calc.Nested
   which means that there is an implicit Mark for each nesting context, which translates like:
   list{a,b,c,…} := (a(b(c(…))))
+
+  ? There is a double semantics for list{} and list{[ ]} -> should there be no empty list?
   */
   type t<'a> = FORM.seq<'a>
 
@@ -325,7 +327,7 @@ module Sequence = {
   let rec toFORMt = (seq: t<'a>) => {
     open FORM
     switch seq {
-    | list{}    => Mark([])
+    | list{}     => Mark([])
     | list{expr} => Mark(expr)
     | list{expr, ...seq'} => Mark( Belt.Array.concat(expr, [seq'->toFORMt]) )
     }
