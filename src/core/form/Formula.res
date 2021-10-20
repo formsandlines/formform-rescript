@@ -1,24 +1,23 @@
 module Token = {
   type parens = Open | Close
-  type const = Calc.Const.t // N | U | I | M
+  type const = Calc.Const.t
   type constN = C0 | C1 | C2 | C3
-  type par = Helper.Parity.t // Even | Odd
+  type par = Helper.Parity.t
 
   type t =
-    | Mark(parens)  // (…)
-    | SeqRE(parens) // {…}
-    | Const(const)  // N | U | I | M
-    // | ConstN(constN)  // 0 | 1 | 2 | 3
-    | Var(string) // x | x_n | "someX" | "someX_n"
-    | Uncl(string) // /someU/ | /someU_n"
+    | Mark(parens)
+    | SeqRE(parens)
+    | Const(const)
+    | Var(string)
+    | Uncl(string)
     | SeqRE_sig(SeqRE.sig)
-    | OptSep // |
-    | SeqSep // ,
-    | SeqRE_par(par) // 2r | 2r+1
-    | SeqRE_open // open
-    | SeqRE_alt // alt
-    | DNA({sortNMUI: bool, code: DNA.t}) // :: | ⁘
-    | ExprSep // .
+    | OptSep
+    | SeqSep
+    | SeqRE_par(par)
+    | SeqRE_open
+    | SeqRE_alt
+    | DNA({sortNMUI: bool, code: DNA.t})
+    | ExprSep
     | VarList(array<string>)
 
   let toString = (token: t): string => switch token {
@@ -26,8 +25,6 @@ module Token = {
   | SeqRE(Open) => "{" | SeqRE(Close) => "}"
 
   | Const(c) => c->Calc.Const.show
-  // | ConstN(C0) => "0" | ConstN(C1) => "1" | ConstN(C2) => "2" | ConstN(C3) => "3"
-
   | Var(lbl) => lbl->Js.String2.length > 1 ? `"${lbl}"` : lbl
   | Uncl(lbl) => `/${lbl}/`
 
@@ -42,8 +39,6 @@ module Token = {
   | VarList(vars) => "[" ++ vars->Js.Array2.joinWith(",") ++ "]"
   }
 
-  let lblClass_unquoted = [`a`,`b`,`c`,`d`,`e`,`f`,`g`,`h`,`i`,`j`,`k`,`l`,`m`,`n`,`o`,`p`,`q`,`r`,`s`,`t`,`u`,`v`,`w`,`x`,`y`,`z`,`α`,`β`,`γ`,`δ`,`ε`,`ζ`,`η`,`θ`,`ι`,`κ`,`λ`,`μ`,`ν`,`ξ`,`ο`,`π`,`ρ`,`ς`,`σ`,`τ`,`υ`,`φ`,`χ`,`ψ`,`ω`]
-  let idxClass_unquoted = [`0`,`1`,`2`,`3`,`4`,`5`,`6`,`7`,`8`,`9`]->Belt.Array.concat(lblClass_unquoted)
 }
 
 
@@ -68,7 +63,6 @@ module Lexer = {
   }
  
   let scanList = (~delim: string, stream: list<string>): (array<string>, list<string>) => {
-    open Token
 
     let rec _scan = (stream: list<string>, arr): (array<string>, list<string>) =>
       switch stream {
@@ -85,11 +79,11 @@ module Lexer = {
           r'->_scanNext(arr->Belt.Array.concat([ lbl ]))
         }
       | list{lbl,"_",idx, ...r}
-          if lblClass_unquoted->Js.Array2.includes(lbl)
-          && idxClass_unquoted->Js.Array2.includes(idx) => 
+          if Expr.lblClass_unquoted->Js.Array2.includes(lbl)
+          && Expr.idxClass_unquoted->Js.Array2.includes(idx) => 
             r->_scanNext(arr->Belt.Array.concat([ lbl++"_"++idx ]))
       | list{lbl, ...r}
-          if lblClass_unquoted->Js.Array2.includes(lbl) => 
+          if Expr.lblClass_unquoted->Js.Array2.includes(lbl) => 
             r->_scanNext(arr->Belt.Array.concat([ lbl ]))
 
       | list{str, ..._} => raise(LexError({msg: `Unable to interpret '${str}'.`}))
@@ -201,10 +195,10 @@ module Lexer = {
     | list{".", ...r} => list{ ExprSep, ...scanFml(r) }
 
     | list{lbl,"_",idx, ...r}
-        if lblClass_unquoted->Js.Array2.includes(lbl)
-        && idxClass_unquoted->Js.Array2.includes(idx) => list{ Var(lbl++"_"++idx), ...scanFml(r) }
+        if Expr.lblClass_unquoted->Js.Array2.includes(lbl)
+        && Expr.idxClass_unquoted->Js.Array2.includes(idx) => list{ Var(lbl++"_"++idx), ...scanFml(r) }
     | list{lbl, ...r}
-        if lblClass_unquoted->Js.Array2.includes(lbl) => list{ Var(lbl), ...scanFml(r) }
+        if Expr.lblClass_unquoted->Js.Array2.includes(lbl) => list{ Var(lbl), ...scanFml(r) }
 
     | list{str, ..._} => raise(LexError({msg: `Unable to interpret '${str}'.`}))
     }
@@ -322,3 +316,4 @@ open Expr
 let read = (formula: string): FORM.expr<var> => {
   formula->Lexer.scan->Parser.parse
 }
+

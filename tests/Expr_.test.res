@@ -25,7 +25,7 @@ let exprsCon: array<expr_sample<con>> = [
          SeqRE({reEntryPar: Parity.Any, unmarked: true, interpr: RecIdent},
            list{[ FORM.Mark([ CVal(M) ]) ],[]}),
          FDna({dna: DNA.makeUnsafe([M,I,U,N]), form: Some([ CVal(M) ]), vars: None}) ],
-    str: `()U/Über Ich/{(M), _@~}[M⁘3210]`
+    str: `()U/Über Ich/{@~_ ,(M)}[M⁘3210]`
   },
 ]
 
@@ -34,7 +34,7 @@ let exprsVar: array<expr_sample<var>> = [
     str: ""
   },
   { f: [ FVar("a"),FVar(`λ`),FVar("a_n"),FVar("apple"),FVar(`süßer_apfel b`) ],
-    str: `aλ"a_n""apple""süßer_apfel b"`
+    str: `aλa_n"apple""süßer_apfel b"`
   },
 ]
 

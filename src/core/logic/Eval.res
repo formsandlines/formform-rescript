@@ -11,12 +11,12 @@ module Interpr = {
   type t = Js.Dict.t<Const.t>
 
   let toVPoint = (interpr: t): VPoint.t =>
-    interpr->Js.Dict.values->Belt.List.fromArray
+    interpr->Js.Dict.values
 
   let fromVPoint = (vp: VPoint.t, vars: array<string>): option<t> => {
-    if (vp->Belt.List.length === vars->Js.Array2.length) {
-      let interpr_arr = vp->Belt.List.mapWithIndex((i,c) => (vars->Js.Array2.unsafe_get(i), c))
-      Some(interpr_arr->Js.Dict.fromList)
+    if (vp->Js.Array2.length === vars->Js.Array2.length) {
+      let interpr_arr = vp->Belt.Array.mapWithIndex((i,c) => (vars->Js.Array2.unsafe_get(i), c))
+      Some(interpr_arr->Js.Dict.fromArray)
     } else {
       None
     }
@@ -104,7 +104,7 @@ let evalAll = (expr): FORM.fdna<var> => {
   let vnum = vars->Js.Array2.length
   let vspace = vnum->VSpace.make
 
-  let dna = vspace->VSpace.toArray->Js.Array2.map((vpoint) => {
+  let dna = vspace->VSpace.getPoints->Js.Array2.map((vpoint) => {
     switch vpoint->Interpr.fromVPoint(vars) {
     | Some(interpr) => expr->interEval(interpr)
     | None => raise(Not_found)

@@ -2,6 +2,8 @@ open Calc
 
 type con = Constant
 type var = Variable
+let lblClass_unquoted: array<string>
+let idxClass_unquoted: array<string>
 
 module FORM: {
 

@@ -54,10 +54,10 @@ module Isolator = {
    * Maps [VPoint] to [Isolator] FORMs
    */
   let fromVPoint = (~vars=Helper.common_vars, vp): t => {
-    if (vars->Js.Array2.length < vp->Belt.List.length) {
+    if (vars->Js.Array2.length < vp->Js.Array2.length) {
       raise(Js.Exn.raiseRangeError("Insufficient variables in given list!"))
     } else {
-      Mark(vp->Belt.List.mapWithIndex((i,c) => FORM.Mark([ get(c,vars[i]) ]) )->Belt.List.toArray)
+      Mark(vp->Belt.Array.mapWithIndex((i,c) => FORM.Mark([ get(c,vars[i]) ]) ))
     }
   }
 

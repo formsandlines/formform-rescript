@@ -114,7 +114,7 @@ var exprsCon = [
         }
       }
     ],
-    str: "()U/Über Ich/{(M), _@~}[M⁘3210]"
+    str: "()U/Über Ich/{@~_ ,(M)}[M⁘3210]"
   }
 ];
 
@@ -146,7 +146,7 @@ var exprsVar = [
         _0: "süßer_apfel b"
       }
     ],
-    str: "aλ\"a_n\"\"apple\"\"süßer_apfel b\""
+    str: "aλa_n\"apple\"\"süßer_apfel b\""
   }
 ];
 

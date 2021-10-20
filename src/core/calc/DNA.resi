@@ -2,6 +2,10 @@ open Calc
 
 type t = private array<Const.t>
 
+let get: (t, int) => option<Const.t>
+
+let getLength: t => int
+
 let getSize: t => int
 let isValidLength: int => bool
 

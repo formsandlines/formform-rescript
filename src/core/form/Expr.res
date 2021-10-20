@@ -3,6 +3,8 @@ open Calc
 
 type con = Constant
 type var = Variable
+let lblClass_unquoted = [`a`,`b`,`c`,`d`,`e`,`f`,`g`,`h`,`i`,`j`,`k`,`l`,`m`,`n`,`o`,`p`,`q`,`r`,`s`,`t`,`u`,`v`,`w`,`x`,`y`,`z`,`α`,`β`,`γ`,`δ`,`ε`,`ζ`,`η`,`θ`,`ι`,`κ`,`λ`,`μ`,`ν`,`ξ`,`ο`,`π`,`ρ`,`ς`,`σ`,`τ`,`υ`,`φ`,`χ`,`ψ`,`ω`]
+let idxClass_unquoted = [`0`,`1`,`2`,`3`,`4`,`5`,`6`,`7`,`8`,`9`]->Belt.Array.concat(lblClass_unquoted)
 
 module FORM = {
   // ===================================================================
@@ -39,10 +41,27 @@ module FORM = {
   let fDna = (fdna) => FDna(fdna)
   // ---
 
+  let is_unquotedVar = (lbl) => {
+    let len = lbl->Js.String2.length
+    let get = Js.String2.get
 
-  let showLabel_Var = (lbl) =>
+    if len == 3 && lbl->get(1) == "_" {
+      lblClass_unquoted->Js.Array2.includes(lbl->get(0)) &&
+      idxClass_unquoted->Js.Array2.includes(lbl->get(2))
+    } else if len == 1 {
+      lblClass_unquoted->Js.Array2.includes(lbl->get(0))
+    } else { false }
+  }
+
+  let showLabel_Var = (lbl) => {
     // TODO: complete Helper function
-    (lbl->Js.String2.length == 1) ? Helper.cleanStr(lbl): `"${Helper.cleanStr(lbl)}"`
+    if (lbl->is_unquotedVar) {
+      Helper.cleanStr(lbl)
+    } else {
+      `"${Helper.cleanStr(lbl)}"`
+    }
+  }
+
   let showLabel_Uncl = (lbl) =>
     // TODO: complete Helper function
     "/" ++ Helper.cleanStr(lbl) ++ "/" 
@@ -51,7 +70,7 @@ module FORM = {
     = (~sortNMUI=false, form) => switch form {
     | Mark(expr) => "(" ++ expr->showExpr(~sortNMUI=sortNMUI) ++ ")"
     | CVal(c) => c->Const.show
-    | SeqRE(reSig, seq) => `{${seq->showSeq(~sortNMUI=sortNMUI)} ${reSig->SeqRE.showSig}}`
+    | SeqRE(reSig, seq) => `{${reSig->SeqRE.showSig} ${seq->showSeq(~sortNMUI=sortNMUI)}}`
     | Uncl(lbl) => lbl->showLabel_Uncl
 
     | FVar(lbl)  => lbl->showLabel_Var
@@ -63,7 +82,8 @@ module FORM = {
 
   and showSeq: type any. (~sortNMUI: bool=?, seq<any>) => _
     = (~sortNMUI=false, seq) =>
-    seq->Belt.List.map(expr => expr->showExpr(~sortNMUI=sortNMUI))->ListExtensions.joinWith(",")
+    seq->Belt.List.reverse // realign with nest-to-left convention
+       ->Belt.List.map(expr => expr->showExpr(~sortNMUI=sortNMUI))->ListExtensions.joinWith(",")
 
   and showFdna: type any. (~sortNMUI: bool=?, fdna<any>) => _
     = (~sortNMUI=false, {dna, form, vars}): _ => {

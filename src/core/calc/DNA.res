@@ -8,6 +8,10 @@ open Calc
 type t = array<Const.t>
 
 
+let get = (dna, i) => dna->Belt.Array.get(i)
+
+let getLength = (dna) => dna->Belt.Array.length
+
 let getSize = (dna) => {
   let len = dna->Belt.Array.length
   let size = Js.Math.log(len->Belt.Int.toFloat) /. Js.Math.log(4.0)

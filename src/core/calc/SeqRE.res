@@ -41,7 +41,7 @@ let showSig = ({reEntryPar, unmarked, interpr}) => {
   | RecInstr => "@"
   | RecIdent => "@~"
   }
-  `${unmarked ? "_" : ""}${preDot}${reMark}${reDots}` // <- nest to right
+  `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}` // <- nest to right
   // `${reDots}${reMark}${preDot}${unmarked ? "_" : ""}`
 }
 let showMN = (mn) => {
