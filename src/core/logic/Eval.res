@@ -100,7 +100,7 @@ let interEval = (expr: FORM.expr<var>, intpr: Interpr.t): Const.t =>
 * Evaluates [FORMula] for all possible interpretations as a [DNA]
 */
 let evalAll = (expr): FORM.fdna<var> => {
-  let vars = expr->FVAR.getVars
+  let vars = expr->FORM.getVars
   let vnum = vars->Js.Array2.length
   let vspace = vnum->VSpace.make
 

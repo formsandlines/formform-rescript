@@ -63,9 +63,9 @@ zoraBlock(`Testing show()`, t => {
 })
 
 
-// [FCON] tests
+// [ConstFORM] tests
 
-let exprsCon: array<{"f": FCON.expr, "fvar": FVAR.expr}> = [
+let exprsCon: array<{"f": FORM.expr<con>, "fvar": FORM.expr<var>}> = [
   { "f": [],
     "fvar": []
   },
@@ -85,23 +85,23 @@ let exprsCon: array<{"f": FCON.expr, "fvar": FVAR.expr}> = [
 ]
 
 
-zoraBlock(`Testing FCON.toFVAR`, t => {
+zoraBlock(`Testing FCON.toVarFORM`, t => {
 
   exprsCon->Js.Array2.forEach((expr) =>
-    t->block(`given an [FCON] expression`, t => {
+    t->block(`given an [ConstFORM] expression`, t => {
       let input = expr["f"]
-      let actual = input->FCON.toFVAR
+      let actual = input->FORM.ConstFORM.toVarFORM
 
       let expected = expr["fvar"]
-      t->equal(actual, expected, `should be equivalent [FVAR]`)
+      t->equal(actual, expected, `should be equivalent [VarFORM]`)
     })
   )
 })
 
 
-// [FVAR] tests
+// [VarFORM] tests
 
-let exprsVar: array<{"f": FVAR.expr, "vars": array<string>, "count": int}> = [
+let exprsVar: array<{"f": FORM.expr<var>, "vars": array<string>, "count": int}> = [
   { "f": [],
     "vars": [],
     "count": 0
@@ -138,12 +138,12 @@ let exprsVar: array<{"f": FVAR.expr, "vars": array<string>, "count": int}> = [
   },
 ]
 
-zoraBlock(`Testing FVAR.getVars()`, t => {
+zoraBlock(`Testing getVars()`, t => {
 
   exprsVar->Js.Array2.forEach((expr) =>
-    t->block(`given an [FVAR] expression`, t => {
+    t->block(`given an [VarFORM] expression`, t => {
       let input = expr["f"]
-      let actual = input->FVAR.getVars
+      let actual = input->FORM.getVars
 
       let expected = expr["vars"]
       t->equal(actual, expected, `should be "${expr["vars"]->Js.Array2.toString}"`)
@@ -151,12 +151,12 @@ zoraBlock(`Testing FVAR.getVars()`, t => {
   )
 })
 
-zoraBlock(`Testing FVAR.countVars()`, t => {
+zoraBlock(`Testing countVars()`, t => {
 
   exprsVar->Js.Array2.forEach((expr) =>
-    t->block(`given an [FVAR] expression`, t => {
+    t->block(`given an [VarFORM] expression`, t => {
       let input = expr["f"]
-      let actual = input->FVAR.countVars
+      let actual = input->FORM.countVars
 
       let expected = expr["count"]
       t->equal(actual, expected, `should be "${expr["count"]->Js.Int.toString}"`)

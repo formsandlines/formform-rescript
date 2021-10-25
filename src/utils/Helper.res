@@ -1,11 +1,23 @@
 
 exception Unreachable // this exception should never be thrown if I’ve done my job correctly
+exception IndexExc((string, int))
+exception Debug(string)
 
 let cleanStr = (str) => {
   // if (str has `"`, "/", `\`, etc.) { maybe purge chars or return None }
   str
 }
 
+let intFromStrWithRadix = (~radix, str) => str
+  ->Js.String2.split("")
+  ->Js.Array2.reverseInPlace
+  ->Js.Array2.reducei((maybeSum, n_str, i) =>
+    maybeSum->Belt.Option.flatMap(sum => {
+      let (int, float) = (Belt.Int.fromFloat, Belt.Int.toFloat)
+      n_str->Belt.Int.fromString->Belt.Option.map(n => 
+        sum + n * int(radix->float ** i->float)
+      ) }
+    ), Some(0))
 
 let hasDecimal = (x) => Belt.Float.fromInt(Belt.Float.toInt(x)) < x
 

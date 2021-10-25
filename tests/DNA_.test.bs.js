@@ -4,6 +4,8 @@ import * as Zora from "@dusty-phillips/rescript-zora/src/Zora.bs.js";
 import * as Zora$1 from "zora";
 import * as Caml_array from "rescript/lib/es6/caml_array.js";
 import * as DNA$Formform from "../src/core/calc/DNA.bs.js";
+import * as Helper$Formform from "../src/utils/Helper.bs.js";
+import * as Caml_js_exceptions from "rescript/lib/es6/caml_js_exceptions.js";
 
 var dnaV0 = [
   DNA$Formform.makeUnsafe([/* N */0]),
@@ -339,28 +341,28 @@ Zora$1.test("Testing make()", (function (t) {
 Zora$1.test("Testing reorderToNMUI()", (function (t) {
         t.test("given dna of single value", (function (t) {
                 var input = DNA$Formform.makeUnsafe([/* U */1]);
-                var actual = DNA$Formform.reorderToNMUI(input);
+                var actual = DNA$Formform.reorderToNMUI(undefined, input);
                 var expected = DNA$Formform.makeUnsafe([/* U */1]);
                 t.equal(actual, expected, "should be the same value");
                 
               }));
         t.test("given dna of " + "{@_ a}" + " in NUIM ordering", (function (t) {
                 var input = dnaV1_01_nuim;
-                var actual = DNA$Formform.reorderToNMUI(input);
+                var actual = DNA$Formform.reorderToNMUI(undefined, input);
                 var expected = dnaV1_01_nmui;
                 t.equal(actual, expected, "should be dna of " + "{@_ a}" + " in NMUI ordering");
                 
               }));
         t.test("given dna of " + "((a)b)" + " in NUIM ordering", (function (t) {
                 var input = dnaV2_01_nuim;
-                var actual = DNA$Formform.reorderToNMUI(input);
+                var actual = DNA$Formform.reorderToNMUI(undefined, input);
                 var expected = dnaV2_01_nmui;
                 t.equal(actual, expected, "should be dna of " + "((a)b)" + " in NMUI ordering");
                 
               }));
         t.test("given dna of " + "{@ a,b,c}{@ b,c,a}{@ a,c,b}" + " in NUIM ordering", (function (t) {
                 var input = dnaV3_01_nuim;
-                var actual = DNA$Formform.reorderToNMUI(input);
+                var actual = DNA$Formform.reorderToNMUI(undefined, input);
                 var expected = dnaV3_01_nmui;
                 t.equal(actual, expected, "should be dna of " + "{@ a,b,c}{@ b,c,a}{@ a,c,b}" + " in NMUI ordering");
                 
@@ -425,8 +427,8 @@ Zora$1.test("Testing fromIntArr()", (function (t) {
                   0
                 ];
                 var actual = DNA$Formform.fromIntArr(true, input);
-                var expected = dnaV2_01_nmui;
-                t.equal(actual, expected, "should be dna of " + "((a)b)" + " in NMUI ordering");
+                var expected = dnaV2_01_nuim;
+                t.equal(actual, expected, "should be dna of " + "((a)b)" + " in NUIM ordering");
                 
               }));
         
@@ -435,12 +437,12 @@ Zora$1.test("Testing fromIntArr()", (function (t) {
 Zora$1.test("Testing fromStrArr()", (function (t) {
         t.test("given empty array", (function (t) {
                 var input = [];
-                var actual = DNA$Formform.fromStrArr(input);
+                var actual = DNA$Formform.fromStrArr(undefined, input);
                 return Zora.optionNone(t, actual, "should be None");
               }));
         t.test("given dna of single value", (function (t) {
                 var input = [""];
-                var actual = DNA$Formform.fromStrArr(input);
+                var actual = DNA$Formform.fromStrArr(undefined, input);
                 var expected = DNA$Formform.makeUnsafe([/* N */0]);
                 t.equal(actual, expected, "should be N");
                 
@@ -464,9 +466,34 @@ Zora$1.test("Testing fromStrArr()", (function (t) {
                   "",
                   "N"
                 ];
-                var actual = DNA$Formform.fromStrArr(input);
+                var actual = DNA$Formform.fromStrArr(undefined, input);
                 var expected = dnaV2_01_nuim;
                 t.equal(actual, expected, "should be dna of " + "((a)b)" + " in NUIM ordering");
+                
+              }));
+        t.test("given dna of single value", (function (t) {
+                var input = [
+                  "0",
+                  "1",
+                  "2",
+                  "3"
+                ];
+                var actual = DNA$Formform.fromStrArr(undefined, input);
+                var expected = DNA$Formform.makeUnsafe([
+                      /* N */0,
+                      /* U */1,
+                      /* I */2,
+                      /* M */3
+                    ]);
+                t.equal(actual, expected, "should be NUIM");
+                var input$1 = [
+                  "2",
+                  "3",
+                  "0",
+                  "1"
+                ];
+                var actual$1 = DNA$Formform.fromStrArr(true, input$1);
+                t.equal(actual$1, expected, "should be NUIM");
                 
               }));
         
@@ -738,11 +765,659 @@ Zora$1.test("Testing rel()", (function (t) {
         
       }));
 
+var dnaPerm_samples = [
+  {
+    input: DNA$Formform.makeUnsafe([/* U */1]),
+    perms: [[
+        [],
+        DNA$Formform.makeUnsafe([/* U */1])
+      ]]
+  },
+  {
+    input: DNA$Formform.makeUnsafe([
+          /* M */3,
+          /* U */1,
+          /* U */1,
+          /* I */2
+        ]),
+    perms: [[
+        [0],
+        DNA$Formform.makeUnsafe([
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* I */2
+            ])
+      ]]
+  },
+  {
+    input: DNA$Formform.makeUnsafe([
+          /* N */0,
+          /* U */1,
+          /* I */2,
+          /* M */3,
+          /* N */0,
+          /* N */0,
+          /* I */2,
+          /* I */2,
+          /* N */0,
+          /* U */1,
+          /* N */0,
+          /* U */1,
+          /* N */0,
+          /* N */0,
+          /* N */0,
+          /* N */0
+        ]),
+    perms: [
+      [
+        [
+          0,
+          1
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* N */0,
+              /* N */0,
+              /* I */2,
+              /* I */2,
+              /* N */0,
+              /* U */1,
+              /* N */0,
+              /* U */1,
+              /* N */0,
+              /* N */0,
+              /* N */0,
+              /* N */0
+            ])
+      ],
+      [
+        [
+          1,
+          0
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* N */0,
+              /* N */0,
+              /* N */0,
+              /* U */1,
+              /* N */0,
+              /* U */1,
+              /* N */0,
+              /* I */2,
+              /* I */2,
+              /* N */0,
+              /* N */0,
+              /* M */3,
+              /* I */2,
+              /* U */1,
+              /* N */0
+            ])
+      ]
+    ]
+  },
+  {
+    input: DNA$Formform.makeUnsafe([
+          /* N */0,
+          /* U */1,
+          /* I */2,
+          /* M */3,
+          /* U */1,
+          /* N */0,
+          /* M */3,
+          /* I */2,
+          /* I */2,
+          /* M */3,
+          /* N */0,
+          /* U */1,
+          /* M */3,
+          /* I */2,
+          /* U */1,
+          /* N */0,
+          /* U */1,
+          /* U */1,
+          /* M */3,
+          /* M */3,
+          /* U */1,
+          /* I */2,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* U */1,
+          /* U */1,
+          /* M */3,
+          /* M */3,
+          /* U */1,
+          /* I */2,
+          /* I */2,
+          /* M */3,
+          /* I */2,
+          /* M */3,
+          /* M */3,
+          /* I */2,
+          /* M */3,
+          /* I */2,
+          /* I */2,
+          /* M */3,
+          /* I */2,
+          /* M */3,
+          /* M */3,
+          /* I */2,
+          /* M */3,
+          /* I */2,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* M */3,
+          /* I */2
+        ]),
+    perms: [
+      [
+        [
+          0,
+          1,
+          2
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* N */0,
+              /* M */3,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* N */0,
+              /* U */1,
+              /* M */3,
+              /* I */2,
+              /* U */1,
+              /* N */0,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2
+            ])
+      ],
+      [
+        [
+          2,
+          1,
+          0
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* N */0,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* N */0,
+              /* I */2,
+              /* I */2,
+              /* I */2
+            ])
+      ],
+      [
+        [
+          1,
+          2,
+          0
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* N */0,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* N */0,
+              /* I */2,
+              /* I */2,
+              /* I */2
+            ])
+      ],
+      [
+        [
+          0,
+          2,
+          1
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* N */0,
+              /* M */3,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* N */0,
+              /* U */1,
+              /* M */3,
+              /* I */2,
+              /* U */1,
+              /* N */0,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2
+            ])
+      ],
+      [
+        [
+          2,
+          0,
+          1
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* N */0,
+              /* M */3,
+              /* I */2,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* N */0,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* U */1,
+              /* N */0,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2
+            ])
+      ],
+      [
+        [
+          1,
+          0,
+          2
+        ],
+        DNA$Formform.makeUnsafe([
+              /* N */0,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* N */0,
+              /* M */3,
+              /* I */2,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* N */0,
+              /* U */1,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2,
+              /* U */1,
+              /* N */0,
+              /* M */3,
+              /* M */3,
+              /* U */1,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* I */2,
+              /* M */3,
+              /* M */3,
+              /* M */3,
+              /* I */2
+            ])
+      ]
+    ]
+  }
+];
+
+Zora$1.test("Testing Perspective.make", (function (t) {
+        dnaPerm_samples.forEach(function (sample) {
+              t.test("given dna and an int array", (function (t) {
+                      var dna = sample.input;
+                      sample.perms.forEach(function (param) {
+                            var permOrder = param[0];
+                            try {
+                              var actual = DNA$Formform.Perspective.permute(dna, permOrder);
+                              var expected = DNA$Formform.Perspective.makeUnsafe(permOrder, param[1]);
+                              return Zora.optionSome(t, actual, (function (t, psp) {
+                                            console.log(psp.permOrder, DNA$Formform.show(undefined, undefined, psp.dna));
+                                            t.equal(psp, expected, "should be identical to input dna");
+                                            
+                                          }));
+                            }
+                            catch (raw_msg){
+                              var msg = Caml_js_exceptions.internalToOCamlException(raw_msg);
+                              if (msg.RE_EXN_ID === Helper$Formform.IndexExc) {
+                                var match = msg._1;
+                                var msg$1 = match[0];
+                                console.log(msg$1, match[1]);
+                                t.fail(msg$1);
+                                return ;
+                              }
+                              if (msg.RE_EXN_ID === Helper$Formform.Debug) {
+                                var msg$2 = msg._1;
+                                console.log(msg$2);
+                                t.fail(msg$2);
+                                return ;
+                              }
+                              console.log(msg);
+                              t.fail("Unknown Error!");
+                              return ;
+                            }
+                          });
+                      
+                    }));
+              
+            });
+        
+      }));
+
 export {
   dnaV0 ,
   dnaV1_01 ,
   dnaV2_01 ,
   dnaV3_01 ,
+  dnaPerm_samples ,
   
 }
 /* dnaV0 Not a pure module */

@@ -105,102 +105,92 @@ module FORM = {
    */
   let show = showExpr
 
-}
 
-module FCON = {
-  // ===================================================================
-  // [FCon]: Constant [FORM] -> structure that evaluates to a [Const]
-  // ===================================================================
-  type t = FORM.t<con>
-  type expr = FORM.expr<con>
-  type seq = FORM.seq<con>
-  type fdna = FORM.fdna<con>
+  module ConstFORM = {
+    // ===================================================================
+    // [ConstFORM]: Constant [FORM] -> structure that evaluates to a [Const]
+    // ===================================================================
 
-
-  let rec reduceForm = (reducerFn, init, form: t) => {
-    let acc = reducerFn(init, form)
-    switch form {
-    | FORM.Mark(expr) => expr->reduceExpr(reducerFn, acc, _)
-    | FORM.SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _)
-    | _ => acc
+    let rec reduceForm = (reducerFn, init, form: t<con>) => {
+      let acc = reducerFn(init, form)
+      switch form {
+      | Mark(expr) => expr->reduceExpr(reducerFn, acc, _)
+      | SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _)
+      | _ => acc
+      }
     }
-  }
-  and reduceExpr = (reducerFn, init, expr: expr) =>
-    expr->Belt.Array.reduce(init, reduceForm(reducerFn))
+    and reduceExpr = (reducerFn, init, expr: expr<con>) =>
+      expr->Belt.Array.reduce(init, reduceForm(reducerFn))
 
-  and reduceSeq = (reducerFn, init, seq: seq) =>
-    seq->Belt.List.reduce(init, reduceExpr(reducerFn))
+    and reduceSeq = (reducerFn, init, seq: seq<con>) =>
+      seq->Belt.List.reduce(init, reduceExpr(reducerFn))
 
-  /**
-   * Reducer function that traverses a [FORM]
-   */
-  let reduce = (expr, reducerFn, init) => reduceExpr(reducerFn, init, expr)
+    /**
+    * Reducer function that traverses a [FORM]
+    */
+    let reduce = (expr, reducerFn, init) => reduceExpr(reducerFn, init, expr)
 
+    let rec toVarFORM_form = (form: t<con>): t<var> =>
+      switch form {
+      | Mark(expr) => Mark(expr->toVarFORM_expr)
+      | CVal(c)    => CVal(c)
+      | SeqRE(sign, forms) => SeqRE(sign, forms->toVarFORM_seq)
+      | Uncl(lbl)  => Uncl(lbl)
+      | FDna(fdna) => FDna(fdna->toVarFORM_fdna)
+      } 
 
-  let rec toFVAR_form = (form: t): FORM.t<var> =>
-    switch form {
-    | FORM.Mark(expr) => Mark(expr->toFVAR_expr)
-    | FORM.CVal(c)    => CVal(c)
-    | FORM.SeqRE(sign, forms) => SeqRE(sign, forms->toFVAR_seq)
-    | FORM.Uncl(lbl)  => Uncl(lbl)
-    | FORM.FDna(fdna) => FDna(fdna->toFVAR_fdna)
-    } 
+    and toVarFORM_expr = (expr: expr<con>): expr<var> => 
+      expr->Js.Array2.map(form => form->toVarFORM_form)
 
-  and toFVAR_expr = (expr: expr): FORM.expr<var> => 
-    expr->Js.Array2.map(form => form->toFVAR_form)
-
-  and toFVAR_seq = (seq: seq): FORM.seq<var> =>
-    seq->Belt.List.map(expr => expr->toFVAR_expr)
-  
-  and toFVAR_fdna = ({dna, form, vars}: fdna): FORM.fdna<var> => {
-    let formVar = switch form {
-    | Some(expr) => Some(expr->toFVAR_expr)
-    | None => None
+    and toVarFORM_seq = (seq: seq<con>): seq<var> =>
+      seq->Belt.List.map(expr => expr->toVarFORM_expr)
+    
+    and toVarFORM_fdna = ({dna, form, vars}: fdna<con>): fdna<var> => {
+      let formVar = switch form {
+      | Some(expr) => Some(expr->toVarFORM_expr)
+      | None => None
+      }
+      {dna: dna, form: formVar, vars: vars}
     }
-    {dna: dna, form: formVar, vars: vars}
+
+    /**
+    * Maps [FORM] to [FORMula]
+    */
+    let toVarFORM = toVarFORM_expr
   }
 
-  /**
-   * Maps [FORM] to [FORMula]
-   */
-  let toFVAR = toFVAR_expr
-}
+  module VarFORM = {
+    // ===================================================================
+    // [VarFORM]: Variable [FORM] -> structure that must be interpreted 
+    // before evaluation as a [ConstFORM]
+    // ===================================================================
 
-module FVAR = {
-  // ===================================================================
-  // [FVar]: Variable [FORM] -> structure that must be interpreted 
-  // before evaluation as a [Constant] [FORM]
-  // ===================================================================
-  type t = FORM.t<var>
-  type expr = FORM.expr<var>
-  type seq = FORM.seq<var>
-  type fdna = FORM.fdna<var>
-
-
-  let rec reduceForm = (reducerFn, init, form: t) => {
-    let acc = reducerFn(init, form)
-    switch form {
-    | FORM.Mark(expr) => expr->reduceExpr(reducerFn, acc, _)
-    | FORM.SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _)
-    | _ => acc
+    let rec reduceForm = (reducerFn, init, form: t<var>) => {
+      let acc = reducerFn(init, form)
+      switch form {
+      | Mark(expr) => expr->reduceExpr(reducerFn, acc, _)
+      | SeqRE(_, seq) => seq->reduceSeq(reducerFn, acc, _)
+      | _ => acc
+      }
     }
+    and reduceExpr = (reducerFn, init, expr: expr<var>) =>
+      expr->Belt.Array.reduce(init, reduceForm(reducerFn))
+
+    and reduceSeq = (reducerFn, init, seq: seq<var>) =>
+      seq->Belt.List.reduce(init, reduceExpr(reducerFn))
+
+    /**
+    * Reducer function that traverses a [FORM]
+    */
+    let reduce = (expr, reducerFn, init) => reduceExpr(reducerFn, init, expr)
+
+
   }
-  and reduceExpr = (reducerFn, init, expr: expr) =>
-    expr->Belt.Array.reduce(init, reduceForm(reducerFn))
-
-  and reduceSeq = (reducerFn, init, seq: seq) =>
-    seq->Belt.List.reduce(init, reduceExpr(reducerFn))
 
   /**
-   * Reducer function that traverses a [FORM]
-   */
-  let reduce = (expr, reducerFn, init) => reduceExpr(reducerFn, init, expr)
-
-
-  /**
-   * Gets variables in alphabetic order from a [FORM]
-   */
-  let getVars = (expr: expr) => {
+  * Gets variables in alphabetic order from a [FORM]
+  */
+  let getVars = (expr: expr<var>) => {
     // https://jrsinclair.com/articles/2019/functional-js-traversing-trees-with-recursive-reduce/
     // ? not sure if Set and the subsequent conversion are too expensive and useless here
     module VarCmp =
@@ -212,29 +202,27 @@ module FVAR = {
 
     let _getVars = (vars, form) =>
       switch form {
-      | FORM.FVar(lbl) => vars->Belt.Set.add(lbl) // vars->Js.Array2.concat([lbl])
+      | FVar(lbl) => vars->Belt.Set.add(lbl) // vars->Js.Array2.concat([lbl])
       | _ => vars
       }
     let init = Belt.Set.make(~id=module(VarCmp))
-    let vars = expr->reduce(_getVars, init) // replaced |>
+    let vars = expr->VarFORM.reduce(_getVars, init) // replaced |>
 
     vars->Belt.Set.toArray
   }
 
   /**
-   * Counts all variables in a [FORM]
-   */
-  let countVars = (expr: expr) => {
+  * Counts all variables in a [FORM]
+  */
+  let countVars = (expr: expr<var>) => {
     let _countVars = (n, form) =>
       switch form {
-      | FORM.FVar(_) => n + 1
+      | FVar(_) => n + 1
       | _ => n
       }
-    expr->reduce(_countVars, 0)
+    expr->VarFORM.reduce(_countVars, 0)
   }
-
 }
-
 
 module DepthTree = {
   // ===================================================================
@@ -324,6 +312,15 @@ module FormDNA = {
   }
   let toFORM = ({dna, form, vars}: t<'a>) => {
     dnaToFORM(dna)
+  }
+
+
+  let permute = ({dna, form, vars}: t<'a>) => {
+    ({dna, form, vars}: t<'a>)
+  }
+
+  let perspectives = ({dna, form, vars}: t<'a>) => {
+    []
   }
 }
 

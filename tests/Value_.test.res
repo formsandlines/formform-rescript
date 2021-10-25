@@ -6,6 +6,16 @@ open Calc.Const
 
 type c = Calc.Const.t
 
+let map_n = (_) => N
+
+let dnaV0_01 = DNA.makeUnsafe([U])
+let dnaV1_01 = DNA.makeUnsafe([M,I,U,N])
+let dnaV2_01 = DNA.makeUnsafe([N,U,I,M, N,N,I,I, N,U,N,U, N,N,N,N])
+let dnaV3_01 = DNA.makeUnsafe(
+      [ N,U,I,M, U,N,M,I, I,M,N,U, M,I,U,N, 
+        U,U,M,M, U,I,M,M, M,M,U,U, M,M,U,I, 
+        I,M,I,M, M,I,M,I, I,M,I,M, M,I,M,I, 
+        M,M,M,M, M,M,M,M, M,M,M,M, M,M,M,I ])
 
 // ------------------------
 // VPoint tests
@@ -154,7 +164,6 @@ zoraBlock(`Testing VSpace.toDNA`, t => {
 // ------------------------
 // VMap tests
 
-let map_n = (_) => N
 
 zoraBlock(`Testing VMap.make`, t => {
   t->block(`given a VSpace`, t => {
@@ -366,21 +375,21 @@ zoraBlock(`Testing VMap.make`, t => {
 
 zoraBlock(`Testing VMap.fromDNA`, t => {
   t->block(`given a DNA`, t => {
-    let input = DNA.makeUnsafe([U])
+    let input = dnaV0_01
     let actual = input->VMap.fromDNA
 
     let expected = `<U>`
     t->equal(actual->VMap.show, expected, `should be ${expected}`)
   })
   t->block(`given a DNA`, t => {
-    let input = DNA.makeUnsafe([M,I,U,N])
+    let input = dnaV1_01
     let actual = input->VMap.fromDNA
 
     let expected = `[N: <N>, U: <U>, I: <I>, M: <M>]`
     t->equal(actual->VMap.show, expected, `should be ${expected}`)
   })
   t->block(`given a DNA`, t => {
-    let input = DNA.makeUnsafe([N,U,I,M, N,N,I,I, N,U,N,U, N,N,N,N])
+    let input = dnaV2_01
     let actual = input->VMap.fromDNA
 
     let expected = `[
@@ -392,11 +401,7 @@ zoraBlock(`Testing VMap.fromDNA`, t => {
     t->equal(actual->VMap.show, expected, `should be ${expected}`)
   })
   t->block(`given a DNA`, t => {
-    let input = DNA.makeUnsafe(
-      [ N,U,I,M, U,N,M,I, I,M,N,U, M,I,U,N, 
-        U,U,M,M, U,I,M,M, M,M,U,U, M,M,U,I, 
-        I,M,I,M, M,I,M,I, I,M,I,M, M,I,M,I, 
-        M,M,M,M, M,M,M,M, M,M,M,M, M,M,M,I ])
+    let input = dnaV3_01
     let actual = input->VMap.fromDNA
 
     let expected = `[
@@ -428,3 +433,125 @@ zoraBlock(`Testing VMap.fromDNA`, t => {
     t->equal(actual->VMap.show, expected, `should be ${expected}`)
   })
 })
+
+
+
+// ------------------------
+// VDict tests
+
+
+zoraBlock(`Testing VDict.make`, t => {
+  t->block(`given a vspace`, t => {
+    let input = VSpace.make(0)
+    let actual = input->VDict.make(map_n)
+
+    let expected = Js.Dict.fromArray([
+      ("N", N)
+      ])->VDict.fromDictUnsafe
+    t->equal(actual, expected, `should be a vdict`)
+
+    let expected = 
+"VSpace -> DNA
+-------------
+N -> N"
+    t->equal(actual->VDict.show, expected, `should be a string representation of the vdict`)
+  })
+  t->block(`given a vspace`, t => {
+    let input = VSpace.make(1)
+    let actual = input->VDict.make(map_n)
+
+    let expected = Js.Dict.fromArray([
+      ("N", N), ("U", N), ("I", N), ("M", N)
+      ])->VDict.fromDictUnsafe
+    t->equal(actual, expected, `should be a vdict`)
+
+    let expected = 
+"VSpace -> DNA
+-------------
+N -> N
+U -> N
+I -> N
+M -> N"
+    t->equal(actual->VDict.show, expected, `should be a string representation of the vdict`)
+  })
+  t->block(`given a vspace`, t => {
+    let input = VSpace.make(2)
+    let actual = input->VDict.make(map_n)
+
+    let expected = Js.Dict.fromArray([
+      ("NN", N), ("NU", N), ("NI", N), ("NM", N),
+      ("UN", N), ("UU", N), ("UI", N), ("UM", N),
+      ("IN", N), ("IU", N), ("II", N), ("IM", N),
+      ("MN", N), ("MU", N), ("MI", N), ("MM", N),
+      ])->VDict.fromDictUnsafe
+    t->equal(actual, expected, `should be a vdict`)
+
+    let expected = 
+"VSpace -> DNA
+-------------
+NN -> N
+NU -> N
+NI -> N
+NM -> N
+UN -> N
+UU -> N
+UI -> N
+UM -> N
+IN -> N
+IU -> N
+II -> N
+IM -> N
+MN -> N
+MU -> N
+MI -> N
+MM -> N"
+    t->equal(actual->VDict.show, expected, `should be a string representation of the vdict`)
+  })
+})
+
+
+
+zoraBlock(`Testing VDict.fromDNA`, t => {
+  t->block(`given a vspace`, t => {
+    let input = dnaV0_01
+    let actual = input->VDict.fromDNA
+
+    let expected = Js.Dict.fromArray([
+      ("N", U)
+      ])->VDict.fromDictUnsafe
+    t->equal(actual, expected, `should be a vdict`)
+  })
+  t->block(`given a vspace`, t => {
+    let input = dnaV1_01
+    let actual = input->VDict.fromDNA
+
+    let expected = Js.Dict.fromArray([
+      ("N", N), ("U", U), ("I", I), ("M", M)
+      ])->VDict.fromDictUnsafe
+    t->equal(actual, expected, `should be a vdict`)
+  })
+  t->block(`given a vspace`, t => {
+    let input = dnaV2_01
+    let actual = input->VDict.fromDNA
+
+    let expected = Js.Dict.fromArray([
+      ("NN", N), ("NU", N), ("NI", N), ("NM", N),
+      ("UN", U), ("UU", N), ("UI", U), ("UM", N),
+      ("IN", I), ("IU", I), ("II", N), ("IM", N),
+      ("MN", M), ("MU", I), ("MI", U), ("MM", N),
+      ])->VDict.fromDictUnsafe
+    t->equal(actual, expected, `should be a vdict`)
+  })
+})
+
+
+
+// zoraBlock(`Testing Permutation.make`, t => {
+//   t->block(`given an array of ints`, t => {
+//     let input = [2,1]
+//     let actual = dnaV2_01->Permutation.make(input)
+
+//     let expected = Permutation.makeUnsafe(input)
+//     t->equal(actual, expected, `should be a valid permutation type`)
+//   })
+// })

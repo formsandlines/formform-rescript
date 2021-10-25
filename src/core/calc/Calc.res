@@ -65,12 +65,16 @@ module Const = {
   /**
    * Outputs [Const] from corresponding string
    */
-  let tFromStr = (str) => {
+  let tFromStr = (~sortNMUI=false, str) => {
     switch str {
     | "N" | "n" | "." | "(())" | "" => Some(N)
     | "U" | "u" | "mn"   => Some(U)
     | "I" | "i" | "(mn)" => Some(I)
     | "M" | "m" | "()"   => Some(M)
+    | "0" => Some(N)
+    | "1" => sortNMUI ? Some(M) : Some(U)
+    | "2" => sortNMUI ? Some(U) : Some(I)
+    | "3" => sortNMUI ? Some(I) : Some(M)
     | _ => None
     }
   }

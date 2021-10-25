@@ -100,21 +100,19 @@ module Lexer = {
   }
 
   let scanDNA = (~sortNMUI: bool, stream: list<string>): (DNA.t, list<string>) => {
-    let conv = (n) => n->Calc.Const.fromInt(~sortNMUI=sortNMUI)->Belt.Option.getUnsafe
-
-    let rec _scan = (stream: list<string>, arr): (array<Calc.Const.t>, list<string>) =>
+    let rec _scan = (stream: list<string>, arr): (array<int>, list<string>) =>
       switch stream {
       // | list{} => raise(LexError({msg: ``}))
       | list{" ", ...r} => r->_scan(arr) // ? ignore whitespace
-      | list{"0", ...r} => r->_scan(arr->Belt.Array.concat([0->conv]))
-      | list{"1", ...r} => r->_scan(arr->Belt.Array.concat([1->conv]))
-      | list{"2", ...r} => r->_scan(arr->Belt.Array.concat([2->conv]))
-      | list{"3", ...r} => r->_scan(arr->Belt.Array.concat([3->conv]))
+      | list{"0", ...r} => r->_scan(arr->Belt.Array.concat([0]))
+      | list{"1", ...r} => r->_scan(arr->Belt.Array.concat([1]))
+      | list{"2", ...r} => r->_scan(arr->Belt.Array.concat([2]))
+      | list{"3", ...r} => r->_scan(arr->Belt.Array.concat([3]))
       | r => (arr, r)
       }
 
     let (arr, rest) = stream->_scan([]) 
-    switch arr->DNA.make {
+    switch arr->DNA.fromIntArr(~sortNMUI=sortNMUI) { 
     | Some(dna) => (dna, rest)
     | None => raise(LexError({msg: `Invalid formDNA!`}))
     }

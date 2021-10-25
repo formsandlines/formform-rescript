@@ -37,35 +37,17 @@ module VMap: {
   let make: (VSpace.t, VPoint.t => Calc.Const.t) => t
 
   let fromDNA: (DNA.t) => t
-
-// let expected = [list{N,N},list{N,U},list{N,I},list{N,M},
-//                 list{U,N},list{U,U},list{U,I},list{U,M},
-//                 list{I,N},list{I,U},list{I,I},list{I,M},
-//                 list{M,N},list{M,U},list{M,I},list{M,M},
-//                 ]
-// Map([ 
-//   (N, 
-//     Map([ (N, Cell(N)), (M, Cell(M)) ])
-//   ),
-//   (U, 
-//     Map([ (U, Cell(N)), (U, Cell(M)) ]) 
-//   ),
-// ])
-
-  // type cell = {w: int, h: int}
-  // type margins = array<float>
-
-  // let construct: (DNA.t, int, cell, margins) => t
-
-  // let make: (~vars: array<string> =?, DNA.t) => {"tree": t, "input": DNA.t, "varorder": array<string>} 
-
 }
 
-module VTable: {
+module VDict: {
 
   type t = private Js.Dict.t<Const.t>
 
+  let fromDictUnsafe: (Js.Dict.t<Const.t>) => t
+
   let show: t => string
 
-  let makeFromDNA: (DNA.t) => t
+  let make: (VSpace.t, VPoint.t => Const.t) => t
+
+  let fromDNA: (DNA.t) => t
 }

@@ -37,33 +37,21 @@ module FORM: {
 
   let show: (~sortNMUI: bool=?, expr<'any>) => string
 
+  module ConstFORM: {
+
+    let reduce: (expr<con>, ('a, t<con>) => 'a, 'a) => 'a
+
+    let toVarFORM: expr<con> => expr<var>
+  }
+
+  module VarFORM: {
+
+    let reduce: (expr<var>, ('a, t<var>) => 'a, 'a) => 'a
+  }
+
+  let getVars: expr<var> => array<string>
+  let countVars: expr<var> => int
 }
-
-module FCON: {
-
-  type t = FORM.t<con>
-  type expr = FORM.expr<con>
-  type seq = FORM.seq<con>
-  type fdna = FORM.fdna<con>
-
-  let reduce: (expr, ('a, t) => 'a, 'a) => 'a
-
-  let toFVAR: FORM.expr<con> => FORM.expr<var>
-}
-
-module FVAR: {
-
-  type t = FORM.t<var>
-  type expr = FORM.expr<var>
-  type seq = FORM.seq<var>
-  type fdna = FORM.fdna<var>
-
-  let reduce: (expr, ('a, t) => 'a, 'a) => 'a
-
-  let getVars: expr => array<string>
-  let countVars: expr => int
-}
-
 
 module DepthTree: {
 
@@ -99,6 +87,9 @@ module FormDNA: {
 
   let dnaToFORM: (DNA.t) => FORM.expr<'a>
   let toFORM: (t<'a>) => FORM.expr<'a>
+
+  let permute: (t<'a>) => t<'a>
+  let perspectives: (t<'a>) => array<t<'a>>
 }
 
 

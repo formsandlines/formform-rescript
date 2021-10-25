@@ -72,7 +72,7 @@ let lex_samples: array<{"fml": string, "tks": Formula.Lexer.tokenStream}> = [
   },
 
   { "fml": `::0123`,
-    "tks": list{Token.DNA({sortNMUI: true, code: DNA.fromIntArrUnsafe(~sortNMUI=true, [0,1,2,3]) })}
+    "tks": list{Token.DNA({sortNMUI: true, code: DNA.fromIntArrUnsafe(~sortNMUI=true, [0,1,2,3]) })} // = 1032 in NUIM
   },
   { "fml": `.[η,b_1].[ ].[","]`,
     "tks": list{Token.ExprSep, VarList([`η`,`b_1`]), ExprSep, VarList([]), ExprSep, VarList([`,`])}
@@ -255,8 +255,8 @@ let parse_samples: array<{"fml": string, "tks": Formula.Lexer.tokenStream, "expr
             ]
   },
   { "fml": `::0123`,
-    "tks": list{Token.DNA({sortNMUI: true, code: DNA.makeUnsafe([N,M,U,I]) })},
-    "expr": [ FORM.FDna({dna: DNA.makeUnsafe([N,M,U,I]), form: None, vars: None}) ]
+    "tks": list{Token.DNA({sortNMUI: true, code: DNA.makeUnsafe([U,N,M,I]) })},
+    "expr": [ FORM.FDna({dna: DNA.makeUnsafe([U,N,M,I]), form: None, vars: None}) ]
   },
   { "fml": `[a]⁘0123 I`,
     "tks": list{ Token.VarList(["a"]),DNA({sortNMUI: false, code: DNA.makeUnsafe([N,U,I,M]) }), Const(I) },

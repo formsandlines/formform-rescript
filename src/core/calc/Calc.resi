@@ -16,7 +16,7 @@ module Const: {
   let toInt: (~sortNMUI: bool=?, t) => int
   let fromInt: (~sortNMUI: bool=?, int) => option<t>
 
-  let tFromStr: (string) => option<t>
+  let tFromStr: (~sortNMUI: bool=?, string) => option<t>
 
   let inv: (t) => t
   let rel: (t, t) => t

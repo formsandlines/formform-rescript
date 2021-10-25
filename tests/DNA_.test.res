@@ -189,8 +189,8 @@ zoraBlock("Testing fromIntArr()", t => {
     let input = [0,3,0,3, 2,0,0,2, 2,3,0,1, 0,0,0,0]
     let actual = input->fromIntArr(~sortNMUI=true)
 
-    let expected = Some(dnaV2_01.nmui)
-    t->equal(actual, expected, `should be dna of ${dnaV2_01.f} in NMUI ordering`)
+    let expected = Some(dnaV2_01.nuim)
+    t->equal(actual, expected, `should be dna of ${dnaV2_01.f} in NUIM ordering`)
   })
 })
 
@@ -214,6 +214,19 @@ zoraBlock("Testing fromStrArr()", t => {
 
     let expected = Some(dnaV2_01.nuim)
     t->equal(actual, expected, `should be dna of ${dnaV2_01.f} in NUIM ordering`)
+  })
+  t->block(`given dna of single value`, t => {
+    let input = ["0","1","2","3"]
+    let actual = input->fromStrArr
+
+    let expected = Some(makeUnsafe([N,U,I,M]))
+    t->equal(actual, expected, `should be NUIM`)
+
+    // let input = ["0","2","3","1"]
+    let input = ["2","3","0","1"]
+    let actual = input->fromStrArr(~sortNMUI=true)
+
+    t->equal(actual, expected, `should be NUIM`)
   })
 })
 
@@ -335,4 +348,91 @@ zoraBlock("Testing rel()", t => {
                      M,M,M,M, M,M,M,M, M,M,M,M, M,M,M,I ])
     t->equal(actual, expected, `should be the relation of dna b with the first n values of dna a, where n is the size of dna b`)
   })
+})
+
+
+let dnaPerm_samples = [
+  {"input": makeUnsafe([U]),
+   "perms": [
+     ([], makeUnsafe([U])),
+   ]},
+  {"input": makeUnsafe([M,U,U,I]),
+   "perms": [
+     ([0], makeUnsafe([M,U,U,I])),
+   ]},
+  {"input": makeUnsafe([N,U,I,M, N,N,I,I, N,U,N,U, N,N,N,N]),
+   "perms": [
+     ([0,1], makeUnsafe([N,U,I,M, N,N,I,I, N,U,N,U, N,N,N,N])),
+     ([1,0], makeUnsafe([N,N,N,N, U,N,U,N, I,I,N,N, M,I,U,N])),
+   ]},
+  {"input": makeUnsafe(
+      [ N,U,I,M, U,N,M,I, I,M,N,U, M,I,U,N, 
+        U,U,M,M, U,I,M,M, M,M,U,U, M,M,U,I, 
+        I,M,I,M, M,I,M,I, I,M,I,M, M,I,M,I, 
+        M,M,M,M, M,M,M,M, M,M,M,M, M,M,M,I ]),
+   "perms": [
+     ([0,1,2], makeUnsafe(
+      [ N,U,I,M, U,N,M,I, I,M,N,U, M,I,U,N, 
+        U,U,M,M, U,I,M,M, M,M,U,U, M,M,U,I, 
+        I,M,I,M, M,I,M,I, I,M,I,M, M,I,M,I, 
+        M,M,M,M, M,M,M,M, M,M,M,M, M,M,M,I ])),
+     ([2,1,0], makeUnsafe(
+      [ N,U,I,M, U,U,M,M, I,M,I,M, M,M,M,M, 
+        U,U,M,M, N,I,I,M, M,M,M,M, I,M,I,M, 
+        I,M,I,M, M,M,M,M, N,U,I,M, U,U,M,M, 
+        M,M,M,M, I,M,I,M, U,U,M,M, N,I,I,I ])),
+     ([1,2,0], makeUnsafe(  //  FAILS
+      [ N,U,I,M, U,U,M,M, I,M,I,M, M,M,M,M, 
+        U,U,M,M, N,I,I,M, M,M,M,M, I,M,I,M, 
+        I,M,I,M, M,M,M,M, N,U,I,M, U,U,M,M, 
+        M,M,M,M, I,M,I,M, U,U,M,M, N,I,I,I ])),
+     ([0,2,1], makeUnsafe(
+      [ N,U,I,M, U,N,M,I, I,M,N,U, M,I,U,N, 
+        U,U,M,M, U,I,M,M, M,M,U,U, M,M,U,I, 
+        I,M,I,M, M,I,M,I, I,M,I,M, M,I,M,I, 
+        M,M,M,M, M,M,M,M, M,M,M,M, M,M,M,I ])),
+     ([2,0,1], makeUnsafe(  // FAILS
+      [ N,U,I,M, U,U,M,M, I,M,I,M, M,M,M,M, 
+        U,N,M,I, U,I,M,M, M,I,M,I, M,M,M,M, 
+        I,M,N,U, M,M,U,U, I,M,I,M, M,M,M,M, 
+        M,I,U,N, M,M,U,I, M,I,M,I, M,M,M,I ])),
+     ([1,0,2], makeUnsafe(
+      [ N,U,I,M, U,U,M,M, I,M,I,M, M,M,M,M, 
+        U,N,M,I, U,I,M,M, M,I,M,I, M,M,M,M, 
+        I,M,N,U, M,M,U,U, I,M,I,M, M,M,M,M, 
+        M,I,U,N, M,M,U,I, M,I,M,I, M,M,M,I ])),
+      ]},
+]
+
+zoraBlock(`Testing Perspective.make`, t => {
+  dnaPerm_samples->Js.Array2.forEach((sample) =>
+    t->block(`given dna and an int array`, t => {
+      let dna = sample["input"]
+      sample["perms"]->Js.Array2.forEach(((permOrder,permDNA)) =>
+        try {
+          let actual = dna->Perspective.permute(permOrder)
+          let expected = Perspective.makeUnsafe(permOrder, permDNA)
+
+          t->optionSome(actual, (t, psp) => {
+              Js.log2(psp.permOrder, psp.dna->DNA.show)
+              t->equal(psp, expected, `should be identical to input dna`)
+            })
+        } catch {
+        // | Helper.Unreachable => t->fail(`Exception should not be possible!`)
+        | Helper.IndexExc(msg,idx) => {
+          Js.log2(msg, idx)
+          t->fail(msg)
+        }
+        | Helper.Debug(msg) => {
+          Js.log(msg)
+          t->fail(msg)
+        }
+        | e => {
+            Js.log(e)
+            t->fail("Unknown Error!")
+          }
+        }
+      )
+    })
+  )
 })

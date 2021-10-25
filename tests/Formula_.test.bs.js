@@ -1468,9 +1468,9 @@ var parse_samples = [
         TAG: /* DNA */7,
         sortNMUI: true,
         code: DNA$Formform.makeUnsafe([
+              /* U */1,
               /* N */0,
               /* M */3,
-              /* U */1,
               /* I */2
             ])
       },
@@ -1480,9 +1480,9 @@ var parse_samples = [
         TAG: /* FDna */5,
         _0: {
           dna: DNA$Formform.makeUnsafe([
+                /* U */1,
                 /* N */0,
                 /* M */3,
-                /* U */1,
                 /* I */2
               ]),
           form: undefined,
