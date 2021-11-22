@@ -88,9 +88,11 @@ module VMap = {
   let makeUnsafe_Map = (coords) => Map(coords)
 
   /**
-  * Recursively constructs VMap from DNA
+  * Recursively constructs VMap from VSpace using mapping function
   */
-  let make = (vspace, map) => {
+  let fromVSpace = (vspace, map) => {
+    // ! map function needs to assume VPoints of same dimension as VSpace
+    //   -> error-handling or simplify interface
     let dim = vspace->VSpace.getDimension
 
     let rec aux = (points: array<VPoint.t>, pos: int) => {
@@ -106,6 +108,16 @@ module VMap = {
   }
 
   /**
+  * Creates VMap from dimension and mapping function
+  */
+  let make = (~sortNMUI=false, dim, map) => {
+    // ! dimension must match assumed VPoint dimension in mapping function
+    //   -> error-handling or simplify interface
+    let vspace = VSpace.make(~sortNMUI, dim)
+    fromVSpace(vspace, map)
+  }
+
+  /**
   * Generates vmap from DNA input
   */
   let fromDNA = (dna) => {
@@ -114,7 +126,7 @@ module VMap = {
     let len = Js.Math.log(dnaArr->Js.Array2.length->Js.Int.toFloat) /. Js.Math.log(4.0) // ? inefficient because VSpace.make does opposite conversion
     let vspace = VSpace.make(len->Js.Math.floor_int)
 
-    vspace->make(vp => {
+    vspace->fromVSpace(vp => {
       let height = vspace.dim-1
       let index = dna->DNA.getLength-1
         - if (height < 0) { 0 }
@@ -145,13 +157,19 @@ module VDict = {
   /**
   * Creates a VDict from given [VSpace] using a mapping function for each [VPoint]
   */
-  let make = (vspace, map) => vspace
+  let fromVSpace = (vspace, map) => vspace
     ->VSpace.getPoints
     ->Belt.Array.map(vpoint => (vpoint->VPoint.showAsKey, vpoint->map))
     ->Js.Dict.fromArray
 
   /** for testing purposes - use with caution! */
   let fromDictUnsafe = (dict) => dict
+
+  /**
+  * Creates a VDict of given dimension using a mapping function for each [VPoint]
+  */
+  let make = (~sortNMUI=false, dim, map) =>
+    VSpace.make(~sortNMUI, dim)->fromVSpace(map)
 
   /**
   * Creates a VDict from given [DNA]

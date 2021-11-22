@@ -343,8 +343,7 @@ Zora.test("Testing VSpace.toDNA", (function (t) {
 
 Zora.test("Testing VMap.make", (function (t) {
         t.test("given a VSpace", (function (t) {
-                var input = Value$Formform.VSpace.make(undefined, 0);
-                var actual = Value$Formform.VMap.make(input, map_n);
+                var actual = Value$Formform.VMap.make(undefined, 0, map_n);
                 var expected = Value$Formform.VMap.makeUnsafe_Cell(/* N */0);
                 t.equal(actual, expected, "should be a valid VMap");
                 var expected$1 = "<N>";
@@ -352,8 +351,7 @@ Zora.test("Testing VMap.make", (function (t) {
                 
               }));
         t.test("given a VSpace", (function (t) {
-                var input = Value$Formform.VSpace.make(undefined, 1);
-                var actual = Value$Formform.VMap.make(input, map_n);
+                var actual = Value$Formform.VMap.make(undefined, 1, map_n);
                 var expected = Value$Formform.VMap.makeUnsafe_Map([
                       [
                         /* N */0,
@@ -378,8 +376,7 @@ Zora.test("Testing VMap.make", (function (t) {
                 
               }));
         t.test("given a VSpace", (function (t) {
-                var input = Value$Formform.VSpace.make(undefined, 2);
-                var actual = Value$Formform.VMap.make(input, map_n);
+                var actual = Value$Formform.VMap.make(undefined, 2, map_n);
                 var expected = Value$Formform.VMap.makeUnsafe_Map([
                       [
                         /* N */0,
@@ -472,8 +469,7 @@ Zora.test("Testing VMap.make", (function (t) {
                 
               }));
         t.test("given a VSpace", (function (t) {
-                var input = Value$Formform.VSpace.make(undefined, 3);
-                var actual = Value$Formform.VMap.make(input, map_n);
+                var actual = Value$Formform.VMap.make(undefined, 3, map_n);
                 var expected = Value$Formform.VMap.makeUnsafe_Map([
                       [
                         /* N */0,
@@ -870,8 +866,7 @@ Zora.test("Testing VMap.fromDNA", (function (t) {
 
 Zora.test("Testing VDict.make", (function (t) {
         t.test("given a vspace", (function (t) {
-                var input = Value$Formform.VSpace.make(undefined, 0);
-                var actual = Value$Formform.VDict.make(input, map_n);
+                var actual = Value$Formform.VDict.make(undefined, 0, map_n);
                 var expected = Value$Formform.VDict.fromDictUnsafe(Js_dict.fromArray([[
                             "N",
                             /* N */0
@@ -881,8 +876,7 @@ Zora.test("Testing VDict.make", (function (t) {
                 
               }));
         t.test("given a vspace", (function (t) {
-                var input = Value$Formform.VSpace.make(undefined, 1);
-                var actual = Value$Formform.VDict.make(input, map_n);
+                var actual = Value$Formform.VDict.make(undefined, 1, map_n);
                 var expected = Value$Formform.VDict.fromDictUnsafe(Js_dict.fromArray([
                           [
                             "N",
@@ -906,8 +900,7 @@ Zora.test("Testing VDict.make", (function (t) {
                 
               }));
         t.test("given a vspace", (function (t) {
-                var input = Value$Formform.VSpace.make(undefined, 2);
-                var actual = Value$Formform.VDict.make(input, map_n);
+                var actual = Value$Formform.VDict.make(undefined, 2, map_n);
                 var expected = Value$Formform.VDict.fromDictUnsafe(Js_dict.fromArray([
                           [
                             "NN",

@@ -34,7 +34,9 @@ module VMap: {
   let makeUnsafe_Cell: (Const.t) => t
   let makeUnsafe_Map: (array<(Const.t, t)>) => t
 
-  let make: (VSpace.t, VPoint.t => Calc.Const.t) => t
+  let make: (~sortNMUI: bool=?, int, VPoint.t => Const.t) => t
+
+  let fromVSpace: (VSpace.t, VPoint.t => Const.t) => t
 
   let fromDNA: (DNA.t) => t
 }
@@ -47,7 +49,9 @@ module VDict: {
 
   let show: t => string
 
-  let make: (VSpace.t, VPoint.t => Const.t) => t
+  let make: (~sortNMUI: bool=?, int, VPoint.t => Const.t) => t
+
+  let fromVSpace: (VSpace.t, VPoint.t => Const.t) => t
 
   let fromDNA: (DNA.t) => t
 }

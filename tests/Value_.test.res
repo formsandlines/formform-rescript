@@ -164,10 +164,11 @@ zoraBlock(`Testing VSpace.toDNA`, t => {
 // ------------------------
 // VMap tests
 
+// ! need to add tests with more specific mapping functions
 
 zoraBlock(`Testing VMap.make`, t => {
   t->block(`given a VSpace`, t => {
-    let input = VSpace.make(0)
+    let input = 0
     let actual = input->VMap.make(map_n)
 
     let expected = VMap.makeUnsafe_Cell(N)
@@ -177,7 +178,7 @@ zoraBlock(`Testing VMap.make`, t => {
     t->equal(actual->VMap.show, expected, `should be ${expected}`)
   })
   t->block(`given a VSpace`, t => {
-    let input = VSpace.make(1)
+    let input = 1
     let actual = input->VMap.make(map_n)
 
     let expected = VMap.makeUnsafe_Map([ 
@@ -192,7 +193,7 @@ zoraBlock(`Testing VMap.make`, t => {
     t->equal(actual->VMap.show, expected, `should be ${expected}`)
   })
   t->block(`given a VSpace`, t => {
-    let input = VSpace.make(2)
+    let input = 2
     let actual = input->VMap.make(map_n)
 
     let expected = VMap.makeUnsafe_Map([
@@ -232,7 +233,7 @@ zoraBlock(`Testing VMap.make`, t => {
     t->equal(actual->VMap.show, expected, `should be ${expected}`)
   })
   t->block(`given a VSpace`, t => {
-    let input = VSpace.make(3)
+    let input = 3
     let actual = input->VMap.make(map_n)
 
     let expected = VMap.makeUnsafe_Map([
@@ -442,7 +443,7 @@ zoraBlock(`Testing VMap.fromDNA`, t => {
 
 zoraBlock(`Testing VDict.make`, t => {
   t->block(`given a vspace`, t => {
-    let input = VSpace.make(0)
+    let input = 0
     let actual = input->VDict.make(map_n)
 
     let expected = Js.Dict.fromArray([
@@ -457,7 +458,7 @@ N -> N"
     t->equal(actual->VDict.show, expected, `should be a string representation of the vdict`)
   })
   t->block(`given a vspace`, t => {
-    let input = VSpace.make(1)
+    let input = 1
     let actual = input->VDict.make(map_n)
 
     let expected = Js.Dict.fromArray([
@@ -475,7 +476,7 @@ M -> N"
     t->equal(actual->VDict.show, expected, `should be a string representation of the vdict`)
   })
   t->block(`given a vspace`, t => {
-    let input = VSpace.make(2)
+    let input = 2
     let actual = input->VDict.make(map_n)
 
     let expected = Js.Dict.fromArray([

@@ -7,6 +7,8 @@ module Interpr = {
   // [Interpr]: interpretation -> mapping of a [VPoint] to a [Const]
   // ===================================================================
 
+  // ? very similar to Value.VDict -> is this structure really needed?
+
   // type t = array<(string, Const.t)>
   type t = Js.Dict.t<Const.t>
 
@@ -100,6 +102,8 @@ let interEval = (expr: FORM.expr<var>, intpr: Interpr.t): Const.t =>
 * Evaluates [FORMula] for all possible interpretations as a [DNA]
 */
 let evalAll = (expr): FORM.fdna<var> => {
+  /* ? separation of interpretation and evaluation
+       -> would be more efficient if combined? */
   let vars = expr->FORM.getVars
   let vnum = vars->Js.Array2.length
   let vspace = vnum->VSpace.make
