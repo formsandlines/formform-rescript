@@ -6,9 +6,9 @@ open Expr
 
 // [FORM] tests
 
-type expr_sample<'a> = {f: FORM.expr<'a>, str: string}
+type expr_sample = {f: FORM.expr, str: string}
 
-let exprsCon: array<expr_sample<con>> = [
+let exprsCon: array<expr_sample> = [
   { f: [],
     str: ""
   },
@@ -29,7 +29,7 @@ let exprsCon: array<expr_sample<con>> = [
   },
 ]
 
-let exprsVar: array<expr_sample<var>> = [
+let exprsVar: array<expr_sample> = [
   { f: [],
     str: ""
   },
@@ -65,7 +65,7 @@ zoraBlock(`Testing show()`, t => {
 
 // [ConstFORM] tests
 
-let exprsCon: array<{"f": FORM.expr<con>, "fvar": FORM.expr<var>}> = [
+let exprsCon: array<{"f": FORM.expr, "fvar": FORM.expr}> = [
   { "f": [],
     "fvar": []
   },
@@ -90,7 +90,7 @@ zoraBlock(`Testing FCON.toVarFORM`, t => {
   exprsCon->Js.Array2.forEach((expr) =>
     t->block(`given an [ConstFORM] expression`, t => {
       let input = expr["f"]
-      let actual = input->FORM.ConstFORM.toVarFORM
+      let actual = input
 
       let expected = expr["fvar"]
       t->equal(actual, expected, `should be equivalent [VarFORM]`)
@@ -101,7 +101,7 @@ zoraBlock(`Testing FCON.toVarFORM`, t => {
 
 // [VarFORM] tests
 
-let exprsVar: array<{"f": FORM.expr<var>, "vars": array<string>, "count": int}> = [
+let exprsVar: array<{"f": FORM.expr, "vars": array<string>, "count": int}> = [
   { "f": [],
     "vars": [],
     "count": 0
@@ -168,9 +168,9 @@ zoraBlock(`Testing countVars()`, t => {
 
 // [DepthTree] tests
 
-type depthTree_sample<'a> = {tree: DepthTree.tRoot<'a>, form: FORM.expr<'a>, str: string}
+type depthTree_sample = {tree: DepthTree.tRoot, form: FORM.expr, str: string}
 
-let dtrees: array<depthTree_sample<con>> = [
+let dtrees: array<depthTree_sample> = [
   {
     tree: DepthTree.testTrees[0],
     form: [],

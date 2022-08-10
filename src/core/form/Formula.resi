@@ -37,10 +37,10 @@ open Expr
 module Parser: {
   exception ParseError({msg: string})
 
-  let parse: Lexer.tokenStream => FORM.expr<var>
+  let parse: Lexer.tokenStream => FORM.expr
 }
 
-let read: string => FORM.expr<var>
+let read: string => FORM.expr
 
 
 // let reOrderVars: (formula, varlist) => formula

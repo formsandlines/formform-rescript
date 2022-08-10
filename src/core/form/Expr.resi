@@ -1,103 +1,90 @@
 open Calc
 
-type con = Constant
-type var = Variable
 let lblClass_unquoted: array<string>
 let idxClass_unquoted: array<string>
 
 module FORM: {
 
   @deriving(accessors)
-  type rec t<'a> = 
-    | Mark(expr<'a>): t<'a>
-    | CVal(Const.t): t<'a>
-    | SeqRE(SeqRE.sig, seq<'a>): t<'a>
-    | Uncl(string): t<'a>
+  type rec t =
+    | Mark(expr)
+    | CVal(Const.t)
+    | SeqRE(SeqRE.sig, seq)
+    | Uncl(string)
+    | FVar(string)
+    | FDna(fdna)
 
-    | FVar(string): t<var>
-    | FDna(fdna<'a>): t<'a>
-
-  and expr<'a> = array<t<'a>>
-  and seq<'a> = list<expr<'a>>
-  and fdna<'a> = { // [FDna] expression
+  and expr = array<t>
+  and seq = list<expr>
+  and fdna = { // [FDna] expression
       dna: DNA.t,
-      form: option<expr<'a>>,
+      form: option<expr>,
       vars: option<array<string>>
     }
 
 
-  let mark: (expr<'a>) => t<'a>
-  let cVal: (Const.t) => t<'a>
-  let seqRE: (SeqRE.sig, seq<'a>) => t<'a>
-  let uncl: (string) => t<'a>
+  let mark: (expr) => t
+  let cVal: (Const.t) => t
+  let seqRE: (SeqRE.sig, seq) => t
+  let uncl: (string) => t
 
-  let fVar: (string) => t<var>
-  let fDna: (fdna<'a>) => t<'a>
+  let fVar: (string) => t
+  let fDna: (fdna) => t
   
 
-  let show: (~sortNMUI: bool=?, expr<'any>) => string
+  let show: (~sortNMUI: bool=?, expr) => string
 
-  module ConstFORM: {
+  let reduce: (expr, ('a, t) => 'a, 'a) => 'a
 
-    let reduce: (expr<con>, ('a, t<con>) => 'a, 'a) => 'a
-
-    let toVarFORM: expr<con> => expr<var>
-  }
-
-  module VarFORM: {
-
-    let reduce: (expr<var>, ('a, t<var>) => 'a, 'a) => 'a
-  }
-
-  let getVars: expr<var> => array<string>
-  let countVars: expr<var> => int
+  let getVars: expr => array<string>
+  let countVars: expr => int
 }
 
 module DepthTree: {
 
-  type rec t<'a> = private 
+  type rec t = private 
     | Branch({
         index: tIndex,
-        form:  FORM.t<'a>,
-        children: array<t<'a>>
+        form:  FORM.t,
+        children: array<t>
       })
     | Leaf({
         index: tIndex,
-        form:  FORM.t<'a>
+        form:  FORM.t
       })
-  and tRoot<'a> = private {
-      form:     FORM.expr<'a>,
-      children: array<t<'a>>
+  and tRoot = private {
+      form:     FORM.expr,
+      children: array<t>
     }
   and tIndex = private array<int>
 
-  let show: tRoot<'a> => string  
+  let show: tRoot => string  
 
-  let parse: FORM.expr<'a> => tRoot<'a>
+  let parse: FORM.expr => tRoot
 
-  let testTrees: array<tRoot<con>> 
+  let testTrees: array<tRoot> 
 }
 
 
 module FormDNA: {
 
-  type t<'a> = FORM.fdna<'a>
+  type t = FORM.fdna
 
-  let show: (~sortNMUI: bool=?, FORM.fdna<'a>) => string
+  let show: (~sortNMUI: bool=?, FORM.fdna) => string
 
-  let dnaToFORM: (DNA.t) => FORM.expr<'a>
-  let toFORM: (t<'a>) => FORM.expr<'a>
+  let dnaToFORM: (DNA.t) => FORM.expr
+  let toFORM: (t) => FORM.expr
 
-  let permute: (t<'a>) => t<'a>
-  let perspectives: (t<'a>) => array<t<'a>>
+  let permute: (t) => t
+  let perspectives: (t) => array<t>
 }
 
 
 module Sequence: {
 
-  type t<'a> = FORM.seq<'a>
+  type t = FORM.seq
 
-  let show: (~sortNMUI: bool=?, FORM.seq<'a>) => string
+  let show: (~sortNMUI: bool=?, FORM.seq) => string
 
-  let toFORMt: (t<'a>) => FORM.t<'a>
+  let toFORMt: (t) => FORM.t
 }

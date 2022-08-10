@@ -8,3 +8,5 @@
 .vscode
 .backups
 /tests/Labs.*
+.clj-kondo/
+.lsp/

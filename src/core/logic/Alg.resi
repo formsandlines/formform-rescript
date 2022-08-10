@@ -3,7 +3,7 @@ open Expr
 
 module Isolator: {
 
-  type t = private FORM.t<var>
+  type t = private FORM.t
 
   let n: (string) => t
   let m: (string) => t
@@ -21,16 +21,16 @@ module Pattern: {
 
   module Imply: {
 
-    type t<'a> = (FORM.expr<'a> => option<FORM.expr<'a>>)
+    type t = (FORM.expr => option<FORM.expr>)
 
-    let apply: (FORM.expr<'a>, t<'a>) => FORM.expr<'a>
+    let apply: (FORM.expr, t) => FORM.expr
   }
   module Equiv: {
 
-    type t<'a> = ( Imply.t<'a>, Imply.t<'a> )
+    type t = ( Imply.t, Imply.t )
 
-    let applyL: (FORM.expr<'a>, t<'a>) => FORM.expr<'a>
-    let applyR: (FORM.expr<'a>, t<'a>) => FORM.expr<'a>
+    let applyL: (FORM.expr, t) => FORM.expr
+    let applyR: (FORM.expr, t) => FORM.expr
   }
 
 }
@@ -38,5 +38,5 @@ module Pattern: {
 
 module PrimAlg: {
 
-  let refl: Pattern.Equiv.t<'a>
+  let refl: Pattern.Equiv.t
 }

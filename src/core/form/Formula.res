@@ -243,7 +243,7 @@ module Parser = {
     }
   }
 
-  let rec parseExpr = (~unmarked=false, ~inSeq=false, stream: Lexer.tokenStream, expr): (FORM.expr<var>, Lexer.tokenStream) => switch stream {
+  let rec parseExpr = (~unmarked=false, ~inSeq=false, stream: Lexer.tokenStream, expr): (FORM.expr, Lexer.tokenStream) => switch stream {
   | list{} if unmarked => (expr, list{})
 
   | list{Mark(Open), ...r} => {
@@ -285,7 +285,7 @@ module Parser = {
   | _ => raise(ParseError({msg: `Missing ')' to close FORM.`}))
   }
 
-  and parseSeq = (stream: Lexer.tokenStream, seq): (FORM.seq<var>, Lexer.tokenStream) => switch stream {
+  and parseSeq = (stream: Lexer.tokenStream, seq): (FORM.seq, Lexer.tokenStream) => switch stream {
   | list{} => raise(ParseError({msg: `Missing '}' to close re-entry FORM.`}))
   | list{ ...r} => {
       let (expr, r') = r->parseExpr(~unmarked=true, ~inSeq=true, [])
@@ -298,7 +298,7 @@ module Parser = {
     }
   }
 
-  let parse = (stream: Lexer.tokenStream): FORM.expr<var> => {
+  let parse = (stream: Lexer.tokenStream): FORM.expr => {
     let (expr, stream) = stream->parseExpr([], ~unmarked=true)
     if (stream->Belt.List.length > 0) {
       raise(ParseError({msg: "Broken parse tree!"}))
@@ -311,7 +311,7 @@ module Parser = {
 
 open Expr
 
-let read = (formula: string): FORM.expr<var> => {
+let read = (formula: string): FORM.expr => {
   formula->Lexer.scan->Parser.parse
 }
 

@@ -10,14 +10,13 @@ module Interpr: {
   let toVPoint: t => VPoint.t
   let fromVPoint: (VPoint.t, array<string>) => option<t>
 
-  let interpret: (FORM.expr<var>, t) => FORM.expr<con>
+  let interpret: (FORM.expr, t) => FORM.expr
 
 }
 
 
-let eval: (FORM.expr<con>) => Const.t
-let evalSeq: (FORM.seq<con>) => Const.t
+let eval: (FORM.expr, Interpr.t) => Const.t
+// let evalDNA: ? // ! missing!
+let evalSeq: (FORM.seq, Interpr.t) => Const.t
 
-let interEval: (FORM.expr<var>, Interpr.t) => Const.t
-
-let evalAll: (FORM.expr<var>) => FORM.fdna<var>
+let evalAll: (FORM.expr) => FORM.fdna

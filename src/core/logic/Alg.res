@@ -7,7 +7,7 @@ module Isolator = {
   // [Isolator]: isolator -> FORMula that isolates a specific [VPoint]
   // ===================================================================
 
-  type t = FORM.t<var>
+  type t = FORM.t
 
   // 0 → 1: `( {@(a)} {..@(a)} )`
   let n = (var: string): t =>
@@ -81,23 +81,23 @@ module Pattern = {
   // ===================================================================
 
   module Imply = {
-    type t<'a> = (FORM.expr<'a> => option<FORM.expr<'a>>)
+    type t = (FORM.expr => option<FORM.expr>)
 
-    let apply = (form, ptn: t<'a>) =>
+    let apply = (form, ptn: t) =>
       switch (form->ptn) {
       | Some(form') => form'
       | None => form
       }
   }
   module Equiv = {
-    type t<'a> = ( Imply.t<'a>, Imply.t<'a> )
+    type t = ( Imply.t, Imply.t )
 
-    let applyL = (form, (ptnL, _): t<'a>) => 
+    let applyL = (form, (ptnL, _): t) => 
       switch (form->ptnL) {
       | Some(form') => form'
       | None => form
       }
-    let applyR = (form, (_, ptnR): t<'a>) =>
+    let applyR = (form, (_, ptnR): t) =>
       switch (form->ptnR) {
       | Some(form') => form'
       | None => form
@@ -108,15 +108,22 @@ module Pattern = {
 module PrimAlg = {
   open Pattern
 
-  let refl'out = (form): option<FORM.expr<'a>> =>
+  let refl'out = (form): option<FORM.expr> =>
     switch form {
     | [ FORM.Mark([ FORM.Mark(a) ]) ] => Some(a)
     | _ => None
     }
-  let refl'in = (form): option<FORM.expr<'a>> =>
+  let refl'in = (form): option<FORM.expr> =>
     Some( [ Mark([ Mark(form) ]) ] )
 
-  let refl: Equiv.t<'a> = (refl'in, refl'out)
+  let refl: Equiv.t = (refl'in, refl'out)
+
+
+  let pos'in = (form): option<FORM.expr> =>
+    switch form {
+    | [ FORM.Mark([ FORM.Mark([ p ]), q ]) ] if (p == q) => Some([])
+    | _ => None
+    }
 
 
 }

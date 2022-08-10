@@ -178,7 +178,7 @@ zoraBlock(`Testing Lexer.scan`, t => {
 
 open Expr
 
-let parse_samples: array<{"fml": string, "tks": Formula.Lexer.tokenStream, "expr": FORM.expr<var>}> = [
+let parse_samples: array<{"fml": string, "tks": Formula.Lexer.tokenStream, "expr": FORM.expr}> = [
   { "fml": ``,
     "tks": list{},
     "expr": []
